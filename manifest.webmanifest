@@ -1,6 +1,6 @@
 {
-  "name": "Daily uOS",
-  "short_name": "Daily uOS",
+  "name": "Dail U OS",
+  "short_name": "Dail U OS",
   "description": "My daily plan, reminders, food and money in one place.",
   "start_url": "./",
   "scope": "./",
