@@ -1041,6 +1041,8 @@ function authMsg(e){
   if(c.includes('invalid-email')) return 'That email looks wrong';
   if(c.includes('unauthorized-domain')) return 'This website isn\'t authorised in Firebase yet';
   if(c.includes('network')) return 'No internet connection';
+  if(c.includes('api-key')) return 'Firebase key looks wrong — tell Claude';
+  if(c.includes('configuration-not-found')||c.includes('operation-not-allowed')) return 'This sign-in method isn\'t switched on in Firebase yet';
   if(c.includes('popup-closed')||c.includes('cancelled')) return 'Sign-in cancelled';
   return 'Sign-in failed'+(c?' ('+c.replace('auth/','')+')':'');
 }
