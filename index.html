@@ -132,7 +132,7 @@ function fresh(){
       cyberLevel:'beginner', trainDays:4, trainPlace:'gym', gymTime:'07:00',
       studyTime:'19:30', studyMins:45, bodyGoal:'recomp',
       diet:'nonveg', avoid:'',
-      salary:'', bills:'', savingsTarget:'',
+      salary:'', bills:'', savingsTarget:'', currency:'INR', alsoCur:'', fxRate:'',
       briefMorning:'06:45', briefNight:'21:30'
     },
     ntfy:{ server:'https://ntfy.sh', topic: 'dailyos-' + rand(10) },
@@ -153,7 +153,23 @@ function parseKey(k){ const [y,m,d]=k.split('-').map(Number); return new Date(y,
 function atTime(d, hhmm){ const [h,m]=hhmm.split(':').map(Number); const x=new Date(d); x.setHours(h,m,0,0); return x; }
 function minus(hhmm, mins){ const [h,m]=hhmm.split(':').map(Number); let t=h*60+m-mins; t=(t+1440)%1440; return pad(Math.floor(t/60))+':'+pad(t%60); }
 function fmt12(hhmm){ const [h,m]=hhmm.split(':').map(Number); const ap=h>=12?'pm':'am'; const hh=h%12||12; return hh+(m?':'+pad(m):'')+ap; }
-function rupees(n){ n=Math.round(Number(n)||0); return '₹'+n.toLocaleString('en-IN'); }
+const CURRENCIES=[['INR','₹','Indian Rupee'],['USD','$','US Dollar'],['EUR','€','Euro'],['GBP','£','British Pound'],['AED','AED','UAE Dirham'],['SAR','SAR','Saudi Riyal'],['QAR','QAR','Qatari Riyal'],['KWD','KWD','Kuwaiti Dinar'],['OMR','OMR','Omani Rial'],['BHD','BHD','Bahraini Dinar'],['SGD','S$','Singapore Dollar'],['MYR','RM','Malaysian Ringgit'],['AUD','A$','Australian Dollar'],['CAD','C$','Canadian Dollar'],['NZD','NZ$','New Zealand Dollar'],['JPY','¥','Japanese Yen'],['CHF','CHF','Swiss Franc'],['LKR','Rs','Sri Lankan Rupee']];
+function curCode(){ return (S&&S.profile&&S.profile.currency)||'INR'; }
+function sym(code=curCode()){ const c=CURRENCIES.find(x=>x[0]===code); return c?c[1]:code; }
+function fmtCur(n, code){
+  n=Number(n)||0; const big=Math.abs(n)>=100||code==='JPY';
+  try{ return new Intl.NumberFormat(code==='INR'?'en-IN':'en-US',{style:'currency',currency:code,maximumFractionDigits:big?0:2,minimumFractionDigits:0}).format(n); }
+  catch(e){ return sym(code)+' '+Math.round(n).toLocaleString('en-US'); }
+}
+function cur(n){ return fmtCur(n, curCode()); }
+function curAlso(n){ const p=S.profile, r=num(p.fxRate); if(!p.alsoCur||p.alsoCur===curCode()||!r) return ''; return ' <span class="muted small">≈ '+fmtCur(n*r,p.alsoCur)+'</span>'; }
+function curOptions(sel, withNone){ return (withNone?'<option value="">None</option>':'')+CURRENCIES.map(([c,sy,n])=>`<option value="${c}" ${sel===c?'selected':''}>${n} (${sy})</option>`).join(''); }
+function currencyFields(p){
+  return `<label>Currency you earn in</label><select name="currency">${curOptions(p.currency||'INR')}</select>
+    <div class="grid2"><div><label>Also show in (optional)</label><select name="alsoCur">${curOptions(p.alsoCur||'',true)}</select></div>
+    ${field('Exchange rate','fxRate',p.fxRate,'number','inputmode="decimal" step="any" placeholder="e.g. 22.7"')}</div>
+    <p class="small muted">Earn abroad but think in rupees? Example: you earn AED and want ₹ shown too. 1 AED ≈ ₹22.7, so type 22.7. Update the rate now and then.</p>`;
+}
 function num(v){ const n=parseFloat(v); return isNaN(n)?0:n; }
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DOWFULL=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
@@ -383,7 +399,7 @@ function planFor(d){
     add('protein', minus(p.briefNight,30), 'Log food & hit protein', b?('Target: '+b.protein+'g protein · '+b.kcal+' kcal'):'Log what you ate', 15, 'food');
   }
   if(p.goals.cyber && S.cyberDone<ROADMAP.length) add('study', p.studyTime, 'Cybersec: '+p.studyMins+' min', currentCheckpoint().t, 25, 'cyber');
-  if(p.goals.money) add('spend', minus(p.briefNight,25), "Log today's spending", m.daily?('Daily budget '+rupees(m.daily)):'Log anything you spent', 5, 'money');
+  if(p.goals.money) add('spend', minus(p.briefNight,25), "Log today's spending", m.daily?('Daily budget '+cur(m.daily)):'Log anything you spent', 5, 'money');
   add('checkin', minus(p.briefNight,15), 'Evening check-in', 'How did today go?', 15, 'mind');
   tasks.sort((a,b)=>a.time.localeCompare(b.time));
   return tasks;
@@ -526,7 +542,7 @@ async function syncNotifications(manual){
 /* ============ UI shell ============ */
 let tab='today', obStep=0, editing=false, draftReminder=null, foodPreview=null, cpOpen=false;
 const app=document.getElementById('app'), nav=document.getElementById('nav');
-const TABS=[['today','◎','Today'],['remind','⏰','Remind'],['food','🍽','Food'],['money','₹','Money'],['me','☰','Me']];
+const TABS=[['today','◎','Today'],['remind','⏰','Remind'],['food','🍽','Food'],['money','💰','Money'],['me','☰','Me']];
 function render(){
   if(!S.setupDone || editing){ nav.classList.add('hidden'); renderOnboarding(); return; }
   nav.classList.remove('hidden');
@@ -560,7 +576,7 @@ function renderOnboarding(){
     <label>Work days</label>${chips('workDays',[[1,'Mon'],[2,'Tue'],[3,'Wed'],[4,'Thu'],[5,'Fri'],[6,'Sat'],[0,'Sun']],p.workDays,true)}
     <div class="grid2">${field('Morning brief','briefMorning',p.briefMorning,'time')}${field('Night heads-up','briefNight',p.briefNight,'time')}</div>`;
   if(obStep===2) html=`<h1>What are you working on?</h1>
-    <label>Goals</label>${chips('goals',[['cyber','💻 Cybersecurity'],['gym','🏋️ Bodybuilding'],['food','🥗 Good eating + mindfulness'],['money','₹ Savings']],Object.keys(p.goals).filter(k=>p.goals[k]),true)}
+    <label>Goals</label>${chips('goals',[['cyber','💻 Cybersecurity'],['gym','🏋️ Bodybuilding'],['food','🥗 Good eating + mindfulness'],['money','💰 Savings']],Object.keys(p.goals).filter(k=>p.goals[k]),true)}
     <h3>Cybersecurity</h3>
     <label>Where are you starting?</label>${chips('cyberLevel',[['beginner','Total beginner'],['some','Know some networking/Linux']],p.cyberLevel)}
     <div class="grid2">${field('Study time','studyTime',p.studyTime,'time')}<div><label>Minutes per day</label><select name="studyMins">${[20,30,45,60,90].map(v=>`<option ${+p.studyMins===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
@@ -573,11 +589,12 @@ function renderOnboarding(){
     <label>Diet</label>${chips('diet',[['v','Veg'],['egg','Veg + eggs'],['nonveg','Non-veg']],p.diet)}
     ${field('Anything you won\'t eat? (comma separated)','avoid',p.avoid,'text','placeholder="e.g. mushroom, fish"')}
     ${(()=>{ readForm(); const b=body(); return b?`<div class="card"><h2>Your numbers</h2><div class="kv"><span>BMI</span><b>${b.bmi} · ${b.cat}</b></div><div class="kv"><span>Daily calories</span><b>${b.kcal} kcal</b></div><div class="kv"><span>Protein</span><b>${b.protein} g</b></div><p class="muted small">Estimates from the Mifflin-St Jeor formula. General guidance, not medical advice.</p></div>`:''; })()}`;
-  if(obStep===4) html=`<h1>Money</h1><p class="muted">Monthly, after tax, in ₹. Only used for maths on this phone.</p>
+  if(obStep===4) html=`<h1>Money</h1><p class="muted">Monthly, after tax. Only used for maths on this phone.</p>
+    ${currencyFields(p)}
     ${field('Take-home salary per month','salary',p.salary,'number','inputmode="numeric" placeholder="e.g. 45000"')}
     ${field('Fixed bills per month (rent, EMI, phone…)','bills',p.bills,'number','inputmode="numeric"')}
     ${field('How much do you want to save per month?','savingsTarget',p.savingsTarget,'number','inputmode="numeric"')}
-    ${(()=>{ readForm(); const m=money(); return m.sal?`<div class="card"><div class="kv"><span>Left to spend per month</span><b>${rupees(m.spendable)}</b></div><div class="kv"><span>That's per day</span><b>${rupees(m.daily)}</b></div>${m.spendable<=0?'<p class="small" style="color:var(--bad)">Bills + savings are more than your salary. Lower the savings target.</p>':''}</div>`:''; })()}`;
+    ${(()=>{ readForm(); const m=money(); return m.sal?`<div class="card"><div class="kv"><span>Left to spend per month</span><b>${cur(m.spendable)}${curAlso(m.spendable)}</b></div><div class="kv"><span>That's per day</span><b>${cur(m.daily)}</b></div>${m.spendable<=0?'<p class="small" style="color:var(--bad)">Bills + savings are more than your salary. Lower the savings target.</p>':''}</div>`:''; })()}`;
   if(obStep===5) html=`<h1>Turn on the nagging</h1>
     <p>Notifications come through the free <b>ntfy</b> app.</p>
     <ol class="small" style="padding-left:20px">
@@ -670,8 +687,8 @@ function renderToday(){
       <div class="kv"><span>Calories</span><span>${eaten} / ${b.kcal} kcal</span></div><div class="bar ${eaten>b.kcal*1.1?'over':''}"><i style="width:${Math.min(100,eaten/b.kcal*100)}%"></i></div>
     </div>`:''}
     ${p.goals.money&&m.sal?`<div class="card"><div class="row between"><h2 style="margin:0">Money</h2><button class="plain" data-goto="money">Log spend →</button></div>
-      <div class="kv"><span>Spent today</span><span>${rupees(m.todaySpent)} / ${rupees(m.daily)}</span></div>
-      <div class="kv"><span>Left this week</span><b style="color:${m.weekLeft<0?'var(--bad)':'inherit'}">${rupees(m.weekLeft)}</b></div>
+      <div class="kv"><span>Spent today</span><span>${cur(m.todaySpent)} / ${cur(m.daily)}</span></div>
+      <div class="kv"><span>Left this week</span><b style="color:${m.weekLeft<0?'var(--bad)':'inherit'}">${cur(m.weekLeft)}</b></div>
       <div class="kv"><span>Savings this month</span><span>${m.onPace?'<span class="pill">On track</span>':'<span class="pill warn">Over pace</span>'}</span></div>
     </div>`:''}
     <div class="card" id="checkinCard">${checkinHtml(dd)}</div>
@@ -793,35 +810,36 @@ function renderMoney(){
   app.innerHTML=`<h1>Money</h1>
     ${m.sal?`<div class="card">
       <p class="muted small" style="margin:0">Left to spend this month</p>
-      <div class="big" style="color:${m.left<0?'var(--bad)':'inherit'}">${rupees(m.left)}</div>
+      <div class="big" style="color:${m.left<0?'var(--bad)':'inherit'}">${cur(m.left)}</div>${curAlso(m.left)?'<p style="margin:0">'+curAlso(m.left)+'</p>':''}
       <div class="bar ${m.month>m.spendable?'over':''}"><i style="width:${m.spendable?Math.min(100,m.month/m.spendable*100):0}%"></i></div>
-      <div class="kv"><span>Spent this month</span><span>${rupees(m.month)} of ${rupees(m.spendable)}</span></div>
-      <div class="kv"><span>Today</span><span>${rupees(m.todaySpent)} of ${rupees(m.daily)}</span></div>
-      <div class="kv"><span>This week</span><span>${rupees(m.week)} of ${rupees(m.weekBudget)}</span></div>
-      <div class="kv"><span>Savings target</span><span>${rupees(m.save)} ${m.onPace?'<span class="pill">On track</span>':'<span class="pill warn">Over pace</span>'}</span></div>
+      <div class="kv"><span>Spent this month</span><span>${cur(m.month)} of ${cur(m.spendable)}</span></div>
+      <div class="kv"><span>Today</span><span>${cur(m.todaySpent)} of ${cur(m.daily)}</span></div>
+      <div class="kv"><span>This week</span><span>${cur(m.week)} of ${cur(m.weekBudget)}</span></div>
+      <div class="kv"> <span>Savings target</span><span>${cur(m.save)}${curAlso(m.save)} ${m.onPace?'<span class="pill">On track</span>':'<span class="pill warn">Over pace</span>'}</span></div>
     </div>`:'<div class="card"><p>Add your salary in Me → Edit setup to see your budget.</p></div>'}
     <div class="card"><h2>Log a spend</h2>
-      <div class="grid2"><div><label>Amount (₹)</label><input id="spAmt" type="number" inputmode="decimal" placeholder="250"></div>
+      <div class="grid2"><div><label>Amount (${sym()})</label><input id="spAmt" type="number" inputmode="decimal" placeholder="250"></div>
       <div><label>Category</label><select id="spCat">${['Food','Transport','Shopping','Bills','Fun','Health','Other'].map(c=>`<option>${c}</option>`).join('')}</select></div></div>
       <label>Note</label><input id="spNote" placeholder="e.g. groceries">
-      <div class="row" style="margin-top:12px"><button id="spAdd" style="flex:1">Add</button><button class="ghost" id="spZero">₹0 today</button></div>
+      <div class="row" style="margin-top:12px"><button id="spAdd" style="flex:1">Add</button><button class="ghost" id="spZero">Nothing spent today</button></div>
     </div>
     <div class="card"><h2>Recent</h2>
-      ${recent.length?recent.slice(0,15).map(s=>`<div class="list-item"><div>${rupees(s.amt)} · ${esc(s.cat)}<div class="small muted">${esc(s.note||'')} ${s.k===dkey(today())?'Today':s.k}</div></div><button class="danger" data-delspend="${s.k}|${s.i}">✕</button></div>`).join(''):'<p class="muted">Nothing yet.</p>'}
+      ${recent.length?recent.slice(0,15).map(s=>`<div class="list-item"><div>${cur(s.amt)} · ${esc(s.cat)}<div class="small muted">${esc(s.note||'')} ${s.k===dkey(today())?'Today':s.k}</div></div><button class="danger" data-delspend="${s.k}|${s.i}">✕</button></div>`).join(''):'<p class="muted">Nothing yet.</p>'}
     </div>
     <div class="card"><h2>Savings calculator</h2>
-      <div class="grid2"><div><label>Save per month (₹)</label><input id="scAmt" type="number" inputmode="numeric" value="${num(S.profile.savingsTarget)||5000}"></div>
+      <div class="grid2"><div><label>Save per month (${sym()})</label><input id="scAmt" type="number" inputmode="numeric" value="${num(S.profile.savingsTarget)||5000}"></div>
       <div><label>For how many years</label><input id="scYrs" type="number" inputmode="numeric" value="5"></div></div>
       <label>Expected yearly return % (FD ~7, index fund ~10–12, not guaranteed)</label><input id="scRate" type="number" inputmode="decimal" value="7">
       <div id="scOut" style="margin-top:12px"></div>
-    </div>`;
+    </div>
+    <div class="card"><h2>Currency</h2><form id="curForm">${currencyFields(S.profile)}<button type="submit" class="ghost full" style="margin-top:12px">Save currency</button></form></div>`;
   calcSavings();
   ['scAmt','scYrs','scRate'].forEach(id=>document.getElementById(id).addEventListener('input',calcSavings));
 }
 function calcSavings(){
   const a=num(document.getElementById('scAmt').value), y=num(document.getElementById('scYrs').value), r=num(document.getElementById('scRate').value)/1200;
   const n=Math.round(y*12); const fv=r?a*((Math.pow(1+r,n)-1)/r)*(1+r):a*n; const put=a*n;
-  document.getElementById('scOut').innerHTML=`<div class="kv"><span>You put in</span><span>${rupees(put)}</span></div><div class="kv"><span>Growth</span><span>${rupees(fv-put)}</span></div><div class="kv"><b>Total after ${y} yrs</b><b>${rupees(fv)}</b></div>`;
+  document.getElementById('scOut').innerHTML=`<div class="kv"><span>You put in</span><span>${cur(put)}</span></div><div class="kv"><span>Growth</span><span>${cur(fv-put)}</span></div><div class="kv"><b>Total after ${y} yrs</b><b>${cur(fv)}</b></div>`;
 }
 app.addEventListener('click', e=>{
   if(e.target.id==='spAdd' || e.target.id==='spZero'){
@@ -829,11 +847,16 @@ app.addEventListener('click', e=>{
     if(!zero && amt<=0){ toast('Enter an amount'); return; }
     const dd=day(dkey(today()));
     if(!zero) dd.spend.push({amt, cat:document.getElementById('spCat').value, note:document.getElementById('spNote').value.trim(), at:Date.now()});
-    setTask('spend', true, true); save(); toast(zero?'Nice, a no-spend day':'Logged '+rupees(amt)); render();
+    setTask('spend', true, true); save(); toast(zero?'Nice, a no-spend day':'Logged '+cur(amt)); render();
   }
   const d=e.target.closest('[data-delspend]'); if(d){ const [k,i]=d.dataset.delspend.split('|'); S.days[k].spend.splice(+i,1); save(); render(); }
 });
 
+app.addEventListener('submit', e=>{
+  if(e.target.id!=='curForm') return; e.preventDefault();
+  const f=e.target; S.profile.currency=f.currency.value; S.profile.alsoCur=f.alsoCur.value; S.profile.fxRate=f.fxRate.value;
+  save(); toast('Currency saved'); render();
+});
 /* ============ Me ============ */
 function renderMe(){
   const p=S.profile;
@@ -855,7 +878,7 @@ function renderMe(){
       <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     </div>
     <div class="card"><button class="danger" id="resetBtn">Reset everything</button></div>
-    <p class="small muted" style="text-align:center">Daily OS v1 · made for me, costs ₹0</p>`;
+    <p class="small muted" style="text-align:center">Daily OS v1 · made for me, costs nothing</p>`;
 }
 app.addEventListener('click', e=>{
   if(e.target.id==='editSetup'){ editing=true; obStep=0; render(); }
