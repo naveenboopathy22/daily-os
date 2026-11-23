@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Daily OS</title>
 <meta name="description" content="My daily plan, reminders, food and money in one place.">
-<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0e13" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,33 +16,42 @@
 <link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{
-  --bg:#f7f7f5; --card:#ffffff; --ink:#1c1c1c; --muted:#6b6b6b; --line:#e6e6e2;
-  --accent:#2f6f5e; --accent-soft:#e3efea; --warn:#b5651d; --bad:#b33a3a; --good:#2f7d4f;
-  --radius:16px;
+  /* Midnight & Champagne */
+  --bg:#f6f3ec; --card:#fffdf9; --ink:#14161c; --muted:#6f6a60; --line:#e8e1d3;
+  --accent:#1c2541; --on-accent:#f6f3ec; --accent-soft:#e8e9ef;
+  --gold:#b08d4a; --gold-soft:#f3ead7; --gold-ink:#7a5f28;
+  --warn:#b0702a; --bad:#a63d40; --good:#3d7a5a;
+  --shadow:0 1px 2px rgba(20,22,28,.04),0 8px 24px rgba(20,22,28,.05);
+  --radius:18px;
+  --serif:ui-serif,"New York","Iowan Old Style",Georgia,serif;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#141414; --card:#1e1e1e; --ink:#ececec; --muted:#9a9a9a; --line:#2c2c2c;
-    --accent:#6cc3a6; --accent-soft:#1f3530; --warn:#e0a060; --bad:#e07070; --good:#7cc79a; }
+  :root{ --bg:#0c0e13; --card:#151821; --ink:#f1ede4; --muted:#9b968b; --line:#252a36;
+    --accent:#d6b56d; --on-accent:#14161c; --accent-soft:#2a2619;
+    --gold:#d6b56d; --gold-soft:#2a2619; --gold-ink:#e6cb8e;
+    --warn:#e0a35e; --bad:#e2787a; --good:#7cc49b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); }
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
 body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
 main{max-width:560px;margin:0 auto;padding:16px}
-h1{font-size:26px;margin:4px 0 2px;letter-spacing:-.3px}
+h1{font-family:var(--serif);font-size:30px;font-weight:600;margin:4px 0 2px;letter-spacing:-.2px}
+h2{font-family:var(--serif);font-weight:600;letter-spacing:-.1px}
 h2{font-size:17px;margin:0 0 10px}
 h3{font-size:15px;margin:12px 0 6px}
 p{margin:6px 0}
 .muted{color:var(--muted)} .small{font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0;box-shadow:var(--shadow)}
 .row{display:flex;gap:10px;align-items:center}
 .between{justify-content:space-between}
 .wrap{flex-wrap:wrap}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
-.stat b{display:block;font-size:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:21px;font-family:var(--serif);font-weight:600;color:var(--gold-ink)}
 .stat span{font-size:12px;color:var(--muted)}
 .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-ink));border-radius:99px;transition:width .3s}
 .bar.over i{background:var(--warn)}
 .task{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
 .task:first-of-type{border-top:0}
@@ -52,10 +61,9 @@ p{margin:6px 0}
 .task .detail{font-size:13px;color:var(--muted);margin-top:2px;white-space:pre-line}
 .task.done .title{text-decoration:line-through;color:var(--muted)}
 .check{width:28px;height:28px;flex:none;border-radius:50%;border:2px solid var(--line);background:none;display:grid;place-items:center;cursor:pointer;color:transparent;font-size:15px;padding:0}
-.task.done .check{background:var(--accent);border-color:var(--accent);color:var(--card)}
-.xp{font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;padding-top:4px}
-button,.btn{font:inherit;border:0;border-radius:12px;padding:12px 16px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
-@media (prefers-color-scheme: dark){button,.btn{color:#0e1f1a}}
+.task.done .check{background:var(--gold);border-color:var(--gold);color:var(--card)}
+.xp{font-size:12px;color:var(--gold-ink);font-weight:600;white-space:nowrap;padding-top:4px}
+button,.btn{font:inherit;border:0;border-radius:12px;padding:12px 16px;background:var(--accent);color:var(--on-accent);font-weight:600;cursor:pointer;letter-spacing:.1px}
 button.ghost{background:var(--accent-soft);color:var(--accent)}
 button.plain{background:none;color:var(--accent);padding:8px 4px}
 button.danger{background:none;color:var(--bad);padding:8px 4px}
@@ -68,24 +76,23 @@ label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
 .grid2 label{margin-top:8px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 14px;font-weight:500}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-@media (prefers-color-scheme: dark){.chip.on{color:#0e1f1a}}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
 nav button{background:none;color:var(--muted);font-size:11px;font-weight:500;padding:6px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:60px}
-nav button .ic{font-size:20px;line-height:1}
+nav button .ic{line-height:0;height:22px}
 nav button.on{color:var(--accent)}
 .list-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
 .list-item:first-child{border-top:0}
-.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--gold-soft);color:var(--gold-ink);font-weight:600}
 .pill.warn{background:transparent;border:1px solid var(--warn);color:var(--warn)}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:10;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
-.big{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.big{font-family:var(--serif);font-size:34px;font-weight:600;letter-spacing:-.3px}
 .kv{display:flex;justify-content:space-between;padding:6px 0;font-size:15px}
 .kv span:first-child{color:var(--muted)}
 .steps{display:flex;gap:6px;margin:8px 0 4px}
 .steps i{flex:1;height:4px;border-radius:9px;background:var(--line)}
-.steps i.on{background:var(--accent)}
+.steps i.on{background:var(--gold)}
 .mood{display:flex;justify-content:space-between}
 .mood button{background:var(--bg);border:1px solid var(--line);font-size:24px;padding:8px 10px;color:inherit}
 .mood button.on{border-color:var(--accent);background:var(--accent-soft)}
@@ -93,11 +100,11 @@ nav button.on{color:var(--accent)}
 .cp:first-child{border-top:0}
 .cp .n{width:22px;color:var(--muted);flex:none}
 .cp.done{color:var(--muted);text-decoration:line-through}
-.cp.cur{font-weight:600;color:var(--accent)}
+.cp.cur{font-weight:600;color:var(--gold-ink)}
 code{background:var(--bg);border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:14px;word-break:break-all}
 .hidden{display:none}
-:root{--m-p:#2f6f5e;--m-c:#d49a3a;--m-f:#5b7fb8}
-@media (prefers-color-scheme: dark){:root{--m-p:#6cc3a6;--m-c:#e3b25e;--m-f:#86a6db}}
+:root{--m-p:#2f6b6e;--m-c:#c19a4b;--m-f:#74557f}
+@media (prefers-color-scheme: dark){:root{--m-p:#6bb8b6;--m-c:#ddbb72;--m-f:#b391c6}}
 .donut{display:flex;align-items:center;gap:16px}
 .donut svg{flex:none}
 .legend{flex:1;min-width:0}
@@ -542,7 +549,7 @@ async function syncNotifications(manual){
 /* ============ UI shell ============ */
 let tab='today', obStep=0, editing=false, draftReminder=null, foodPreview=null, cpOpen=false;
 const app=document.getElementById('app'), nav=document.getElementById('nav');
-const TABS=[['today','◎','Today'],['remind','⏰','Remind'],['food','🍽','Food'],['money','💰','Money'],['me','☰','Me']];
+const TABS=[['today','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16 9.7"/></svg>','Today'],['remind','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>','Remind'],['food','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 21V3c-2 1.5-3 4-3 7v3h3"/></svg>','Food'],['money','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg>','Money'],['me','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.2 7.5-5.2s6.3 1.6 7.5 5.2"/></svg>','Me']];
 function render(){
   if(!S.setupDone || editing){ nav.classList.add('hidden'); renderOnboarding(); return; }
   nav.classList.remove('hidden');
