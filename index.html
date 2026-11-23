@@ -321,6 +321,8 @@ nav button:active{transform:scale(.94)}
 .ob-card h1{font-size:28px}
 .footer-logo{margin:26px 0 8px}
 .eye{box-shadow:none}
+.trial{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;border-color:rgba(226,194,126,.35)}
+.trial button{flex:none;padding:10px 16px}
 .ring .mid b .count,.hs b .count,.stat b .count{display:inline;font-size:inherit;color:inherit;letter-spacing:inherit;text-transform:none;margin:0}
 .ring .mid b{display:flex;align-items:baseline;justify-content:center;gap:1px}
 .ring .mid b small{font-size:16px;font-weight:700;opacity:.8}
@@ -337,12 +339,32 @@ nav button:active{transform:scale(.94)}
 'use strict';
 /* ============ storage ============ */
 const KEY = 'dailyos.v1';
+const GUEST_IMPORT='dailyos.guestImport';
 let S = load();
+// Signed-in data is remembered on the device (localStorage). Without an account it lives only
+// for this visit (sessionStorage), so opening the link again starts fresh.
 function load(){
-  try{ const raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){
+      const d=JSON.parse(raw);
+      if(d && d._uid) return d;
+      // saved before accounts were required: keep a copy to offer on first sign-in
+      if(d && d.setupDone && !localStorage.getItem(GUEST_IMPORT)) localStorage.setItem(GUEST_IMPORT, raw);
+      localStorage.removeItem(KEY);
+    }
+    const ss=sessionStorage.getItem(KEY); if(ss) return JSON.parse(ss);
+  }catch(e){}
   return null;
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Could not save — storage full?'); } try{ markDirty(); }catch(e){} }
+function persist(){
+  const j=JSON.stringify(S);
+  if(S._uid){ localStorage.setItem(KEY,j); try{ sessionStorage.removeItem(KEY); }catch(e){} }
+  else { sessionStorage.setItem(KEY,j); try{ localStorage.removeItem(KEY); }catch(e){} }
+}
+function takeGuestImport(){ try{ const r=localStorage.getItem(GUEST_IMPORT); localStorage.removeItem(GUEST_IMPORT); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function hasGuestImport(){ try{ return !!localStorage.getItem(GUEST_IMPORT); }catch(e){ return false; } }
+function save(){ try{ persist(); }catch(e){ toast('Could not save — storage full?'); } try{ markDirty(); }catch(e){} }
 function fresh(){
   return {
     v:1, setupDone:false, welcomeSeen:false,
@@ -933,6 +955,7 @@ function renderToday(){
         <div class="hs"><div class="ic">${IC.crown}</div><div><b>Level ${lvl}</b><div class="bar" style="margin:6px 0 0;width:120px"><i style="width:${into/2}%"></i></div></div></div>
       </div>
     </div>
+    ${!S._uid&&window.DAILYOS_FIREBASE?`<div class="card trial"><div><b>Trial mode</b><div class="small muted">Sign in so your progress isn't lost when you close the page.</div></div><button data-tab-go="me">Save it</button></div>`:''}
     ${streakAtRisk?`<div class="card alert"><b>💀 Streak at risk.</b> Finish ${Math.ceil(c.total*0.7)-c.done} more task(s) before midnight to keep your ${shownStreak()}-day streak.</div>`:''}
     <div class="card">
       <div class="card-head"><h2>Today's plan</h2><span class="pill">${c.done}/${c.total} done</span></div>
@@ -1143,7 +1166,7 @@ function renderMe(){
       <div class="row wrap"><button class="ghost" id="testNtfy2">Send test</button><button class="ghost" id="resync">Schedule now</button></div>
     </div>
     <div class="card"><h2>Backup</h2>
-      <p class="small muted">${user?'Your data is synced to your account. A backup file is an extra safety copy.':'Your data lives only on this device. Save a backup now and then.'}</p>
+      <p class="small muted">${user?'Your data is synced to your account. A backup file is an extra safety copy.':'Trial mode: nothing is kept after you close the page. Sign in above to keep it, or save a backup file.'}</p>
       <div class="row wrap"><button class="ghost" id="exportBtn">Save backup</button><button class="ghost" id="importBtn">Restore backup</button></div>
       <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     </div>
@@ -1193,7 +1216,7 @@ function parts(){
   for(const k in S.days){ const id='m-'+k.slice(0,7); (out[id]=out[id]||{})[k]=S.days[k]; }
   return out;
 }
-function rawSave(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function rawSave(){ try{ persist(); }catch(e){} }
 function markDirty(){
   if(!user) return; const m=syncMeta(), now=Date.now(), ps=parts();
   for(const id in ps){ if(hashStr(JSON.stringify(ps[id]))!==m.hash[id] && !m.dirtyAt[id]) m.dirtyAt[id]=now; }
@@ -1229,7 +1252,17 @@ async function pullAll(first){
       else { m.hash={}; m.ts={}; m.dirtyAt={}; rawSave(); pulling=false; await pushAll(); return; }
     } else if(first && hasRemote && !S.setupDone){
       S.days={}; for(const id in remote) applyRemote(id, remote[id]); if(!S.scheduled) S.scheduled={}; setNotifier(false);
+      if(hasGuestImport() && confirm('This device also has DailU-Os data saved from before you had an account.\n\nOK = replace your account data with it\nCancel = keep your account data')){
+        const g=takeGuestImport(); if(g){ const uid=user.uid; S=Object.assign(g,{_uid:uid,welcomeSeen:true,_sync:{hash:{},ts:{},dirtyAt:{}}}); setNotifier(true); rawSave(); pulling=false; await pushAll(); render(); return; }
+      }
+      takeGuestImport();
     } else if(!hasRemote){
+      if(first && !S.setupDone && hasGuestImport()){
+        const g=takeGuestImport();
+        if(g && confirm('Found DailU-Os data saved on this device. Add it to your account so it\'s kept and synced?')){
+          const uid=user.uid; S=Object.assign(g,{_uid:uid,welcomeSeen:true,_sync:{hash:{},ts:{},dirtyAt:{}}}); setNotifier(true); rawSave(); render();
+        }
+      }
       pulling=false; await pushAll(); return;
     } else {
       for(const id in remote){
@@ -1281,7 +1314,10 @@ async function cloudInit(){
         if(S._uid && S._uid!==u.uid){ S=fresh(); }
         S._uid=u.uid;
         if(!S.profile.name && (u.displayName||pendingName)) S.profile.name=(u.displayName||pendingName).split(' ')[0];
-        S.welcomeSeen=true; authView=null; await pullAll(!was);
+        S.welcomeSeen=true; authView=null; rawSave(); await pullAll(!was);
+      } else if(S._uid){
+        // signed out (or session ended): forget this account's data on the device and start fresh
+        S=fresh(); rawSave(); lastScreen=''; tab='today';
       }
       render();
     });
@@ -1387,8 +1423,8 @@ function authCard(canSync){
       ${canSync?`<button class="google full" id="gSignIn">${G_LOGO}<span>Continue with Google</span></button>
       <button class="glass-btn full" id="emailSignIn">Continue with email</button>
       <div class="or"><span>or</span></div>`:''}
-      <button class="${canSync?'plain':'cta'} full" id="localOnly">${canSync?'Use on this device only':'Get started'}</button>
-      <p class="small muted center" style="margin-top:8px">${canSync?'Signing in keeps your data in sync across devices.':'Your data stays on this device.'}</p>
+      <button class="${canSync?'plain':'cta'} full" id="localOnly">${canSync?'Try without an account':'Try it now'}</button>
+      <p class="small muted center" style="margin-top:8px">${canSync?'Sign in to keep your data and sync it across devices. Without an account, nothing is kept after you close the page.':'Nothing is kept after you close the page.'}</p>
     </div>`;
 }
 function renderWelcome(){
@@ -1482,7 +1518,7 @@ app.addEventListener('submit', async e=>{
 function accountCard(){
   const canSync=!!(window.DAILYOS_FIREBASE&&window.DAILYOS_FIREBASE.apiKey);
   if(!canSync) return `<div class="card"><h2>Account & sync</h2><p class="small muted">Sync across devices isn't connected yet. Your data lives on this device; use Backup to move it.</p></div>`;
-  if(!user) return `<div class="card"><h2>Account & sync</h2><p class="small muted">Sign in to keep your data in sync across devices.</p>
+  if(!user) return `<div class="card"><h2>Account & sync</h2><p class="small muted">You're in trial mode. Sign in to keep everything you've set up and sync it across devices. Otherwise it's cleared when you close the page.</p>
       <button class="google full" id="gSignIn2">${G_LOGO}<span>Continue with Google</span></button>
       <button class="ghost full" style="margin-top:10px" id="emailSignIn2">Continue with email</button></div>`;
   const t=lastSyncAt?new Date(lastSyncAt):null;
