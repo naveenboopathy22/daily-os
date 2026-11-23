@@ -1,4 +1,4 @@
-# Daily OS
+# Daily uOS
 
 My personal daily planner: timed daily plan, streaks and XP, typed reminders, food and macro tracking with pie charts, budget and savings, a cybersecurity roadmap, and push nags through the free ntfy app.
 
