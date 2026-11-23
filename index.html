@@ -117,6 +117,16 @@ button.google{display:flex;align-items:center;justify-content:center;gap:10px;ba
 .switch{width:51px;height:31px;border-radius:99px;background:var(--line);padding:0;position:relative;flex:none}
 .switch i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .2s}
 .switch.on{background:var(--good)} .switch.on i{left:22px}
+.welcome.auth{justify-content:space-between}
+.seg{display:flex;background:var(--line);border-radius:10px;padding:2px;margin:18px 0 4px}
+.seg button{flex:1;background:none;color:var(--ink);padding:8px;border-radius:8px;font-size:15px;font-weight:600}
+.seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.pw{position:relative} .pw input{padding-right:46px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;color:var(--muted);padding:8px}
+.eye.on{color:var(--accent)}
+.pwrules{list-style:none;padding:0;margin:10px 0 0;color:var(--muted)}
+.pwrules li::before{content:'○ ';}
+.pwrules li.ok{color:var(--good)} .pwrules li.ok::before{content:'✓ ';}
 .footer-logo{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;margin:18px 0 4px}
 .footer-logo svg{border-radius:7px}
 .eyebrow{margin:0;font-size:13px;font-weight:600;letter-spacing:-.08px;text-transform:uppercase;color:var(--muted)}
@@ -929,6 +939,8 @@ function logoMark(size=72){
   return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Daily OS logo"><rect width="64" height="64" rx="15" fill="#1c2541"/><circle cx="32" cy="32" r="17" fill="none" stroke="#d6b56d" stroke-width="4.2"/><path d="M24.5 32.6l5.3 5.3 10.4-10.6" fill="none" stroke="#d6b56d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 function wordmark(){ return `<div class="wordmark">Daily <span>OS</span></div>`; }
+const EYE='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+let pendingName='';
 const G_LOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
 
 /* ============ accounts & sync (Firebase, optional) ============ */
@@ -1018,7 +1030,12 @@ async function cloudInit(){
         catch(e){ if(/popup|operation-not-supported|cancelled-popup/.test(e.code||'')) await Au.signInWithRedirect(auth,p); else throw e; }
       },
       emailIn:(e,pw)=>Au.signInWithEmailAndPassword(auth,e,pw),
-      emailUp:(e,pw)=>Au.createUserWithEmailAndPassword(auth,e,pw),
+      async emailUp(e,pw,name){
+        const cred=await Au.createUserWithEmailAndPassword(auth,e,pw);
+        try{ if(name) await Au.updateProfile(cred.user,{displayName:name}); }catch(_){}
+        try{ await Au.sendEmailVerification(cred.user); }catch(_){}
+        return cred;
+      },
       reset:(e)=>Au.sendPasswordResetEmail(auth,e),
       signOut:()=>Au.signOut(auth)
     };
@@ -1026,8 +1043,11 @@ async function cloudInit(){
     Au.onAuthStateChanged(auth, async u=>{
       const was=user; user=u; cloudReady=true;
       if(u){
-        if(!S.profile.name && u.displayName) S.profile.name=u.displayName.split(' ')[0];
-        S.welcomeSeen=true; await pullAll(!was);
+        // a different person signed in on this device: start clean so data never mixes
+        if(S._uid && S._uid!==u.uid){ S=fresh(); }
+        S._uid=u.uid;
+        if(!S.profile.name && (u.displayName||pendingName)) S.profile.name=(u.displayName||pendingName).split(' ')[0];
+        S.welcomeSeen=true; authView=null; await pullAll(!was);
       }
       render();
     });
@@ -1037,7 +1057,8 @@ function authMsg(e){
   const c=(e&&e.code)||'';
   if(c.includes('invalid-credential')||c.includes('wrong-password')||c.includes('user-not-found')) return 'Wrong email or password';
   if(c.includes('email-already-in-use')) return 'That email already has an account. Sign in instead.';
-  if(c.includes('weak-password')) return 'Password needs at least 6 characters';
+  if(c.includes('weak-password')) return 'Password needs at least 8 characters';
+  if(c.includes('too-many-requests')) return 'Too many tries. Wait a few minutes and try again.';
   if(c.includes('invalid-email')) return 'That email looks wrong';
   if(c.includes('unauthorized-domain')) return 'This website isn\'t authorised in Firebase yet';
   if(c.includes('network')) return 'No internet connection';
@@ -1050,18 +1071,26 @@ function authMsg(e){
 /* ============ welcome / sign-in screen ============ */
 function renderWelcome(){
   const canSync=!!(window.DAILYOS_FIREBASE&&window.DAILYOS_FIREBASE.apiKey);
-  if(authView==='email'){
-    app.innerHTML=`<div class="welcome">
-      <div class="logo-row">${logoMark(56)}</div>
-      <h1 style="text-align:center">Sign in with email</h1>
-      <p class="muted" style="text-align:center">Use the same email on every device to keep your data in sync.</p>
-      <form id="emailForm" autocomplete="on">
-        <label>Email</label><input name="email" type="email" autocomplete="email" required>
-        <label>Password</label><input name="password" type="password" autocomplete="current-password" minlength="6" required>
-        <button type="submit" class="full" style="margin-top:18px" data-mode="in">Sign in</button>
-        <button type="submit" class="ghost full" style="margin-top:10px" data-mode="up">Create account</button>
-      </form>
-      <div class="row between" style="margin-top:8px"><button class="plain" id="authBack">← Back</button><button class="plain" id="forgotPw">Forgot password?</button></div>
+  if(authView==='signin'||authView==='signup'){
+    const up=authView==='signup';
+    app.innerHTML=`<div class="welcome auth">
+      <div>
+        <div class="logo-row">${logoMark(56)}</div>
+        <h1 style="text-align:center">${up?'Create your account':'Welcome back'}</h1>
+        <p class="muted" style="text-align:center">${up?'Your Daily OS login, no Google needed. Use it on any device.':'Sign in with the email and password you made for Daily OS.'}</p>
+        <div class="seg"><button type="button" class="${up?'':'on'}" data-auth="signin">Sign in</button><button type="button" class="${up?'on':''}" data-auth="signup">Create account</button></div>
+        <form id="emailForm" autocomplete="on" novalidate>
+          ${up?'<label>Your name</label><input name="name" autocomplete="given-name" placeholder="e.g. Naveen" required>':''}
+          <label>Email</label><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@example.com" required>
+          <label>Password</label>
+          <div class="pw"><input name="password" type="password" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'At least 8 characters':''}" required><button type="button" class="eye" aria-label="Show password">${EYE}</button></div>
+          ${up?`<label>Confirm password</label><div class="pw"><input name="password2" type="password" autocomplete="new-password" required><button type="button" class="eye" aria-label="Show password">${EYE}</button></div>
+          <ul class="pwrules small"><li data-rule="len">At least 8 characters</li><li data-rule="match">Passwords match</li></ul>`:''}
+          <button type="submit" class="full" style="margin-top:20px">${up?'Create account':'Sign in'}</button>
+        </form>
+        ${up?'<p class="small muted" style="text-align:center;margin-top:12px">We\'ll send a welcome email to confirm your address.</p>':'<div style="text-align:center;margin-top:6px"><button class="plain" id="forgotPw">Forgot password?</button></div>'}
+      </div>
+      <div style="text-align:center"><button class="plain" id="authBack">← Other sign-in options</button></div>
     </div>`;
     return;
   }
@@ -1078,21 +1107,42 @@ function renderWelcome(){
 app.addEventListener('click', async e=>{
   const id=e.target.closest('button')?.id;
   if(id==='localOnly'){ S.welcomeSeen=true; save(); render(); }
-  if(id==='emailSignIn'){ authView='email'; render(); }
+  if(id==='emailSignIn'){ authView='signin'; render(); }
   if(id==='authBack'){ authView=null; render(); }
   if(id==='gSignIn'||id==='gSignIn2'){ try{ await cloud.google(); }catch(err){ toast(authMsg(err)); } }
-  if(id==='emailSignIn2'){ authView='email'; S.welcomeSeen=false; render(); }
+  if(id==='emailSignIn2'){ authView='signin'; render(); }
   if(id==='forgotPw'){ const em=document.querySelector('#emailForm [name=email]').value.trim(); if(!em){ toast('Type your email first'); return; } try{ await cloud.reset(em); toast('Reset link sent to '+em); }catch(err){ toast(authMsg(err)); } }
   if(id==='syncNow'){ await pullAll(false); toast('Synced'); }
-  if(id==='signOut' && confirm('Sign out? Your data stays on this device; sign in again to sync.')){ await cloud.signOut(); user=null; render(); }
+  if(id==='signOut' && confirm('Sign out?\n\nYour data is saved in your account and will be removed from this device until you sign in again.')){
+    await pushAll(); await cloud.signOut(); user=null; S=fresh(); rawSave(); tab='today'; render();
+  }
   if(id==='notifierToggle'){ setNotifier(!notifierOn()); if(notifierOn()) syncNotifications(true); render(); }
+});
+app.addEventListener('click', e=>{
+  const t=e.target.closest('[data-auth]'); if(t){ authView=t.dataset.auth; render(); return; }
+  const eye=e.target.closest('.eye'); if(eye){ const i=eye.previousElementSibling; i.type=i.type==='password'?'text':'password'; eye.classList.toggle('on', i.type==='text'); }
+});
+app.addEventListener('input', e=>{
+  const f=e.target.form; if(!f||f.id!=='emailForm'||!f.password2) return;
+  const pw=f.password.value, ok1=pw.length>=8, ok2=pw.length>0&&pw===f.password2.value;
+  f.querySelector('[data-rule=len]').classList.toggle('ok',ok1); f.querySelector('[data-rule=match]').classList.toggle('ok',ok2);
 });
 app.addEventListener('submit', async e=>{
   if(e.target.id!=='emailForm') return; e.preventDefault();
-  const f=e.target, em=f.email.value.trim(), pw=f.password.value, emailMode=(e.submitter&&e.submitter.dataset.mode)||'in';
-  f.querySelectorAll('button').forEach(b=>b.disabled=true);
-  try{ if(emailMode==='up') await cloud.emailUp(em,pw); else await cloud.emailIn(em,pw); authView=null; }
-  catch(err){ toast(authMsg(err)); f.querySelectorAll('button').forEach(b=>b.disabled=false); }
+  const f=e.target, up=authView==='signup', em=f.email.value.trim(), pw=f.password.value;
+  if(!/^\S+@\S+\.\S+$/.test(em)){ toast('Enter a valid email'); return; }
+  if(up){
+    const name=f.name.value.trim();
+    if(!name){ toast('Add your name'); return; }
+    if(pw.length<8){ toast('Password needs at least 8 characters'); return; }
+    if(pw!==f.password2.value){ toast('Passwords don\'t match'); return; }
+    pendingName=name;
+  } else if(!pw){ toast('Enter your password'); return; }
+  const btn=f.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent=up?'Creating account…':'Signing in…';
+  try{
+    if(up){ await cloud.emailUp(em,pw,pendingName); toast('Account created. Check your email to confirm it.'); }
+    else await cloud.emailIn(em,pw);
+  }catch(err){ toast(authMsg(err)); btn.disabled=false; btn.textContent=up?'Create account':'Sign in'; }
 });
 function accountCard(){
   const canSync=!!(window.DAILYOS_FIREBASE&&window.DAILYOS_FIREBASE.apiKey);
