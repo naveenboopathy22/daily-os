@@ -104,6 +104,21 @@ nav button.on{color:var(--accent)}
 .cp.cur{font-weight:600;color:var(--gold-ink)}
 code{background:var(--bg);border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:14px;word-break:break-all}
 .hidden{display:none}
+.welcome{min-height:calc(100vh - 40px);display:flex;flex-direction:column;justify-content:space-between;padding:6vh 4px 24px}
+.hero{text-align:center;margin-top:8vh}
+.hero svg{border-radius:20px;box-shadow:0 10px 30px rgba(28,37,65,.25)}
+.wordmark{font-family:var(--sf-display);font-size:40px;font-weight:700;letter-spacing:.2px;margin-top:18px}
+.wordmark span{color:var(--gold)}
+.tagline{color:var(--muted);font-size:17px;margin-top:10px}
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:40px}
+.logo-row{display:flex;justify-content:center;margin:20px 0 8px}
+button.google{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}
+@media (prefers-color-scheme: dark){button.google{background:#fff;color:#1f1f1f}}
+.switch{width:51px;height:31px;border-radius:99px;background:var(--line);padding:0;position:relative;flex:none}
+.switch i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .2s}
+.switch.on{background:var(--good)} .switch.on i{left:22px}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;margin:18px 0 4px}
+.footer-logo svg{border-radius:7px}
 .eyebrow{margin:0;font-size:13px;font-weight:600;letter-spacing:-.08px;text-transform:uppercase;color:var(--muted)}
 :root{--m-p:#2f6b6e;--m-c:#c19a4b;--m-f:#74557f}
 @media (prefers-color-scheme: dark){:root{--m-p:#6bb8b6;--m-c:#ddbb72;--m-f:#b391c6}}
@@ -121,6 +136,7 @@ code{background:var(--bg);border:1px solid var(--line);padding:2px 6px;border-ra
 <nav id="nav" class="hidden"></nav>
 <div id="toast" class="toast"></div>
 
+<script src="firebase-config.js"></script>
 <script>
 'use strict';
 /* ============ storage ============ */
@@ -130,10 +146,10 @@ function load(){
   try{ const raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
   return null;
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Could not save — storage full?'); } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Could not save — storage full?'); } try{ markDirty(); }catch(e){} }
 function fresh(){
   return {
-    v:1, setupDone:false,
+    v:1, setupDone:false, welcomeSeen:false,
     profile:{
       name:'', age:'', sex:'male', heightCm:'', weightKg:'', activity:'1.375',
       wake:'06:30', sleep:'23:00', workStart:'09:30', workEnd:'18:30', workDays:[1,2,3,4,5],
@@ -535,7 +551,7 @@ function plannedNotifications(){
 }
 let syncing=false;
 async function syncNotifications(manual){
-  if(syncing||!S.setupDone) return; syncing=true;
+  if(syncing||!S.setupDone||!notifierOn()) return; syncing=true;
   // forget keys older than 4 days
   const cutoff=Date.now()-4*86400000; for(const k in S.scheduled) if(S.scheduled[k]<cutoff) delete S.scheduled[k];
   const todo=plannedNotifications().filter(n=>!S.scheduled[n.key]);
@@ -553,6 +569,7 @@ let tab='today', obStep=0, editing=false, draftReminder=null, foodPreview=null, 
 const app=document.getElementById('app'), nav=document.getElementById('nav');
 const TABS=[['today','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16 9.7"/></svg>','Today'],['remind','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>','Remind'],['food','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 21V3c-2 1.5-3 4-3 7v3h3"/></svg>','Food'],['money','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg>','Money'],['me','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.2 7.5-5.2s6.3 1.6 7.5 5.2"/></svg>','Me']];
 function render(){
+  if(authView || (!S.setupDone && !S.welcomeSeen)){ nav.classList.add('hidden'); renderWelcome(); return; }
   if(!S.setupDone || editing){ nav.classList.add('hidden'); renderOnboarding(); return; }
   nav.classList.remove('hidden');
   nav.innerHTML=TABS.map(([id,ic,l])=>`<button data-tab="${id}" class="${tab===id?'on':''}"><span class="ic">${ic}</span>${l}</button>`).join('');
@@ -573,7 +590,7 @@ function renderOnboarding(){
   const p=S.profile;
   const head=`<div class="steps">${OB_STEPS.map((_,i)=>`<i class="${i<=obStep?'on':''}"></i>`).join('')}</div><p class="muted small">Step ${obStep+1} of ${OB_STEPS.length} · ${OB_STEPS[obStep]}</p>`;
   let html='';
-  if(obStep===0) html=`<h1>${editing?'Edit setup':'Hey, let\'s set you up'}</h1><p class="muted">A few questions so the plan fits your real life. Everything stays on this phone.</p>
+  if(obStep===0) html=`<h1>${editing?'Edit setup':'Hey, let\'s set you up'}</h1><p class="muted">A few questions so the plan fits your real life. Takes about a minute.</p>
     ${field('Your name','name',p.name,'text','autocomplete="given-name"')}
     <div class="grid2">${field('Age','age',p.age,'number','inputmode="numeric"')}<div><label>Sex (for calorie maths)</label><select name="sex"><option value="male" ${p.sex==='male'?'selected':''}>Male</option><option value="female" ${p.sex==='female'?'selected':''}>Female</option></select></div></div>
     <div class="grid2">${field('Height (cm)','heightCm',p.heightCm,'number','inputmode="decimal"')}${field('Weight (kg)','weightKg',p.weightKg,'number','inputmode="decimal"')}</div>
@@ -644,7 +661,7 @@ app.addEventListener('submit', e=>{
   if(obStep===0 && (!num(p.heightCm)||!num(p.weightKg))){ toast('Add height and weight for your macros'); return; }
   if(obStep===2 && !Object.values(p.goals).some(Boolean)){ toast('Pick at least one goal'); return; }
   if(obStep<OB_STEPS.length-1){ obStep++; render(); return; }
-  if(!S.setupDone){ S.cyberDone = p.cyberLevel==='some'?7:0; }
+  if(!S.setupDone){ S.cyberDone = p.cyberLevel==='some'?7:0; setNotifier(true); }
   S.setupDone=true; editing=false; obStep=0;
   save(); tab='today'; render(); syncNotifications(true);
 });
@@ -872,6 +889,7 @@ function renderMe(){
   app.innerHTML=`<h1>${esc(p.name)||'Me'}</h1>
     <div class="stats"><div class="stat"><b>${S.best||0}</b><span>best streak</span></div><div class="stat"><b>Lv ${level()}</b><span>level</span></div><div class="stat"><b>${S.cyberDone}/${ROADMAP.length}</b><span>checkpoints</span></div></div>
     <div class="card"><button class="ghost full" id="editSetup">Edit setup (routine, goals, body, money)</button></div>
+    ${accountCard()}
     ${p.goals.cyber?`<div class="card"><div class="row between"><h2 style="margin:0">Cybersec roadmap</h2><button class="plain" id="cpToggle">${cpOpen?'Hide':'Show all'}</button></div>
       <p class="small muted">Tap a checkpoint to set your progress there.</p>
       ${ROADMAP.map((c,i)=>(cpOpen||Math.abs(i-S.cyberDone)<=2)?`<div class="cp ${i<S.cyberDone?'done':i===S.cyberDone?'cur':''}" data-cp="${i}"><span class="n">${i+1}</span><span>${esc(c.t)} <span class="small muted">· ${c.phase}</span></span></div>`:'').join('')}
@@ -882,12 +900,12 @@ function renderMe(){
       <div class="row wrap"><button class="ghost" id="testNtfy2">Send test</button><button class="ghost" id="resync">Schedule now</button></div>
     </div>
     <div class="card"><h2>Backup</h2>
-      <p class="small muted">Your data lives only on this phone. Save a backup now and then.</p>
+      <p class="small muted">${user?'Your data is synced to your account. A backup file is an extra safety copy.':'Your data lives only on this device. Save a backup now and then.'}</p>
       <div class="row wrap"><button class="ghost" id="exportBtn">Save backup</button><button class="ghost" id="importBtn">Restore backup</button></div>
       <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     </div>
     <div class="card"><button class="danger" id="resetBtn">Reset everything</button></div>
-    <p class="small muted" style="text-align:center">Daily OS v1 · made for me, costs nothing</p>`;
+    <div class="footer-logo">${logoMark(28)}<span>Daily OS · made for me, costs nothing</span></div>`;
 }
 app.addEventListener('click', e=>{
   if(e.target.id==='editSetup'){ editing=true; obStep=0; render(); }
@@ -906,10 +924,196 @@ app.addEventListener('change', e=>{
   f.text().then(t=>{ const d=JSON.parse(t); if(!d.profile) throw 0; S=d; save(); toast('Restored'); render(); }).catch(()=>toast('Not a valid backup file'));
 });
 
+/* ============ logo ============ */
+function logoMark(size=72){
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Daily OS logo"><rect width="64" height="64" rx="15" fill="#1c2541"/><circle cx="32" cy="32" r="17" fill="none" stroke="#d6b56d" stroke-width="4.2"/><path d="M24.5 32.6l5.3 5.3 10.4-10.6" fill="none" stroke="#d6b56d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function wordmark(){ return `<div class="wordmark">Daily <span>OS</span></div>`; }
+const G_LOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
+
+/* ============ accounts & sync (Firebase, optional) ============ */
+// Data layout in Firestore:  users/{uid}/docs/core  and  users/{uid}/docs/m-YYYY-MM
+// Each doc: { data: "<json>", updatedAt: <ms>, device: "<id>" }
+let cloud=null;            // adapter {get(id), set(id,obj), list(), signIn..., signOut}
+let user=null, cloudReady=false, pushT=null, pulling=false, lastSyncAt=0, authView=null;
+const DEVICE = (()=>{ try{ let d=localStorage.getItem('dailyos.device'); if(!d){ d=rand(10); localStorage.setItem('dailyos.device',d); } return d; }catch(e){ return 'x'; } })();
+function notifierOn(){ try{ return localStorage.getItem('dailyos.notifier')!=='0'; }catch(e){ return true; } }
+function setNotifier(on){ try{ localStorage.setItem('dailyos.notifier', on?'1':'0'); }catch(e){} }
+function hashStr(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return String(h>>>0); }
+function syncMeta(){ if(!S._sync) S._sync={hash:{},ts:{},dirtyAt:{}}; return S._sync; }
+function corePart(){ const {profile,ntfy,xp,streak,best,lastStreakDate,cyberDone,reminders,setupDone,v}=S; return {profile,ntfy,xp,streak,best,lastStreakDate,cyberDone,reminders,setupDone,v}; }
+function parts(){
+  const out={core:corePart()};
+  for(const k in S.days){ const id='m-'+k.slice(0,7); (out[id]=out[id]||{})[k]=S.days[k]; }
+  return out;
+}
+function rawSave(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function markDirty(){
+  if(!user) return; const m=syncMeta(), now=Date.now(), ps=parts();
+  for(const id in ps){ if(hashStr(JSON.stringify(ps[id]))!==m.hash[id] && !m.dirtyAt[id]) m.dirtyAt[id]=now; }
+  if(!pushT) pushT=setTimeout(()=>{ pushT=null; pushAll(); }, 1500);
+}
+async function pushAll(){
+  if(!user||!cloud) return; const m=syncMeta(), ps=parts();
+  try{
+    for(const id in ps){
+      const json=JSON.stringify(ps[id]), h=hashStr(json);
+      if(h===m.hash[id]) continue;
+      const at=Date.now(); await cloud.set(id,{data:json, updatedAt:at, device:DEVICE});
+      m.hash[id]=h; m.ts[id]=at; delete m.dirtyAt[id];
+    }
+    lastSyncAt=Date.now(); rawSave();
+  }catch(e){ console.warn('push failed',e); }
+}
+function applyRemote(id, obj){
+  const data=JSON.parse(obj.data);
+  if(id==='core'){ Object.assign(S, data); }
+  else { const ym=id.slice(2); for(const k of Object.keys(S.days)) if(k.startsWith(ym)) delete S.days[k]; Object.assign(S.days, data); }
+  const m=syncMeta(); m.hash[id]=hashStr(obj.data); m.ts[id]=obj.updatedAt; delete m.dirtyAt[id];
+}
+// Pull newer cloud docs. On the very first sync of this device, ask which copy wins.
+async function pullAll(first){
+  if(!user||!cloud||pulling) return; pulling=true;
+  try{
+    const remote=await cloud.list(); const m=syncMeta();
+    const hasRemote=!!remote.core;
+    if(first && hasRemote && S.setupDone && m.ts.core===undefined){
+      const useCloud=confirm('Your account already has Daily OS data from another device.\n\nOK = use the account data on this device\nCancel = replace the account data with this device\'s data');
+      if(useCloud){ const keepSched=S.scheduled; S.days={}; for(const id in remote) applyRemote(id, remote[id]); S.scheduled=keepSched||{}; setNotifier(false); }
+      else { m.hash={}; m.ts={}; m.dirtyAt={}; rawSave(); pulling=false; await pushAll(); return; }
+    } else if(first && hasRemote && !S.setupDone){
+      S.days={}; for(const id in remote) applyRemote(id, remote[id]); if(!S.scheduled) S.scheduled={}; setNotifier(false);
+    } else if(!hasRemote){
+      pulling=false; await pushAll(); return;
+    } else {
+      for(const id in remote){
+        const r=remote[id]; if(r.device===DEVICE && r.updatedAt<=(m.ts[id]||0)) continue;
+        if(r.updatedAt>(m.ts[id]||0)){
+          const dirty=m.dirtyAt[id];
+          if(!dirty || r.updatedAt>dirty) applyRemote(id, r);
+        }
+      }
+    }
+    if(!S.scheduled) S.scheduled={};
+    lastSyncAt=Date.now(); rawSave(); render();
+    pulling=false; await pushAll();
+  }catch(e){ console.warn('pull failed',e); toast('Sync failed — check connection'); }
+  pulling=false;
+}
+
+const FB_VER='10.12.2';
+async function cloudInit(){
+  const cfg=window.DAILYOS_FIREBASE; if(!cfg||!cfg.apiKey) return;
+  try{
+    const base='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
+    const [A,Au,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+    const app=A.initializeApp(cfg), auth=Au.getAuth(app), db=F.getFirestore(app);
+    const col=()=>F.collection(db,'users',user.uid,'docs');
+    cloud={
+      async list(){ const snap=await F.getDocs(col()); const out={}; snap.forEach(d=>out[d.id]=d.data()); return out; },
+      async set(id,obj){ await F.setDoc(F.doc(db,'users',user.uid,'docs',id), obj); },
+      async google(){
+        const p=new Au.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
+        try{ await Au.signInWithPopup(auth,p); }
+        catch(e){ if(/popup|operation-not-supported|cancelled-popup/.test(e.code||'')) await Au.signInWithRedirect(auth,p); else throw e; }
+      },
+      emailIn:(e,pw)=>Au.signInWithEmailAndPassword(auth,e,pw),
+      emailUp:(e,pw)=>Au.createUserWithEmailAndPassword(auth,e,pw),
+      reset:(e)=>Au.sendPasswordResetEmail(auth,e),
+      signOut:()=>Au.signOut(auth)
+    };
+    Au.getRedirectResult(auth).catch(e=>toast(authMsg(e)));
+    Au.onAuthStateChanged(auth, async u=>{
+      const was=user; user=u; cloudReady=true;
+      if(u){
+        if(!S.profile.name && u.displayName) S.profile.name=u.displayName.split(' ')[0];
+        S.welcomeSeen=true; await pullAll(!was);
+      }
+      render();
+    });
+  }catch(e){ console.warn('Firebase failed to load',e); cloudReady=true; render(); }
+}
+function authMsg(e){
+  const c=(e&&e.code)||'';
+  if(c.includes('invalid-credential')||c.includes('wrong-password')||c.includes('user-not-found')) return 'Wrong email or password';
+  if(c.includes('email-already-in-use')) return 'That email already has an account. Sign in instead.';
+  if(c.includes('weak-password')) return 'Password needs at least 6 characters';
+  if(c.includes('invalid-email')) return 'That email looks wrong';
+  if(c.includes('unauthorized-domain')) return 'This website isn\'t authorised in Firebase yet';
+  if(c.includes('network')) return 'No internet connection';
+  if(c.includes('popup-closed')||c.includes('cancelled')) return 'Sign-in cancelled';
+  return 'Sign-in failed'+(c?' ('+c.replace('auth/','')+')':'');
+}
+
+/* ============ welcome / sign-in screen ============ */
+function renderWelcome(){
+  const canSync=!!(window.DAILYOS_FIREBASE&&window.DAILYOS_FIREBASE.apiKey);
+  if(authView==='email'){
+    app.innerHTML=`<div class="welcome">
+      <div class="logo-row">${logoMark(56)}</div>
+      <h1 style="text-align:center">Sign in with email</h1>
+      <p class="muted" style="text-align:center">Use the same email on every device to keep your data in sync.</p>
+      <form id="emailForm" autocomplete="on">
+        <label>Email</label><input name="email" type="email" autocomplete="email" required>
+        <label>Password</label><input name="password" type="password" autocomplete="current-password" minlength="6" required>
+        <button type="submit" class="full" style="margin-top:18px" data-mode="in">Sign in</button>
+        <button type="submit" class="ghost full" style="margin-top:10px" data-mode="up">Create account</button>
+      </form>
+      <div class="row between" style="margin-top:8px"><button class="plain" id="authBack">← Back</button><button class="plain" id="forgotPw">Forgot password?</button></div>
+    </div>`;
+    return;
+  }
+  app.innerHTML=`<div class="welcome">
+    <div class="hero">${logoMark(88)}${wordmark()}<p class="tagline">Your day, organised.<br>Goals, food, money and gentle nags, in one place.</p></div>
+    <div class="actions">
+      ${canSync?`<button class="google full" id="gSignIn">${G_LOGO}<span>Continue with Google</span></button>
+      <button class="ghost full" id="emailSignIn">Continue with email</button>`:''}
+      <button class="${canSync?'plain':''} full" id="localOnly">${canSync?'Use on this device only':'Get started'}</button>
+      <p class="small muted" style="text-align:center;margin-top:10px">${canSync?'Signing in keeps your data in sync across your phone and other devices.':'Your data stays on this device.'}</p>
+    </div>
+  </div>`;
+}
+app.addEventListener('click', async e=>{
+  const id=e.target.closest('button')?.id;
+  if(id==='localOnly'){ S.welcomeSeen=true; save(); render(); }
+  if(id==='emailSignIn'){ authView='email'; render(); }
+  if(id==='authBack'){ authView=null; render(); }
+  if(id==='gSignIn'||id==='gSignIn2'){ try{ await cloud.google(); }catch(err){ toast(authMsg(err)); } }
+  if(id==='emailSignIn2'){ authView='email'; S.welcomeSeen=false; render(); }
+  if(id==='forgotPw'){ const em=document.querySelector('#emailForm [name=email]').value.trim(); if(!em){ toast('Type your email first'); return; } try{ await cloud.reset(em); toast('Reset link sent to '+em); }catch(err){ toast(authMsg(err)); } }
+  if(id==='syncNow'){ await pullAll(false); toast('Synced'); }
+  if(id==='signOut' && confirm('Sign out? Your data stays on this device; sign in again to sync.')){ await cloud.signOut(); user=null; render(); }
+  if(id==='notifierToggle'){ setNotifier(!notifierOn()); if(notifierOn()) syncNotifications(true); render(); }
+});
+app.addEventListener('submit', async e=>{
+  if(e.target.id!=='emailForm') return; e.preventDefault();
+  const f=e.target, em=f.email.value.trim(), pw=f.password.value, emailMode=(e.submitter&&e.submitter.dataset.mode)||'in';
+  f.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{ if(emailMode==='up') await cloud.emailUp(em,pw); else await cloud.emailIn(em,pw); authView=null; }
+  catch(err){ toast(authMsg(err)); f.querySelectorAll('button').forEach(b=>b.disabled=false); }
+});
+function accountCard(){
+  const canSync=!!(window.DAILYOS_FIREBASE&&window.DAILYOS_FIREBASE.apiKey);
+  if(!canSync) return `<div class="card"><h2>Account & sync</h2><p class="small muted">Sync across devices isn't connected yet. Your data lives on this device; use Backup to move it.</p></div>`;
+  if(!user) return `<div class="card"><h2>Account & sync</h2><p class="small muted">Sign in to keep your data in sync across devices.</p>
+      <button class="google full" id="gSignIn2">${G_LOGO}<span>Continue with Google</span></button>
+      <button class="ghost full" style="margin-top:10px" id="emailSignIn2">Continue with email</button></div>`;
+  const t=lastSyncAt?new Date(lastSyncAt):null;
+  return `<div class="card"><h2>Account & sync</h2>
+    <div class="kv"><span>Signed in as</span><span>${esc(user.email||user.displayName||'')}</span></div>
+    <div class="kv"><span>Last synced</span><span>${t?fmt12(pad(t.getHours())+':'+pad(t.getMinutes())):'—'}</span></div>
+    <div class="list-item" style="border-top:1px solid var(--line);margin-top:6px"><div>Send nags from this device<div class="small muted">Turn on for one device only, so you don't get every nag twice.</div></div>
+      <button class="switch ${notifierOn()?'on':''}" id="notifierToggle" aria-label="Toggle"><i></i></button></div>
+    <div class="row wrap" style="margin-top:8px"><button class="ghost" id="syncNow">Sync now</button><button class="danger" id="signOut">Sign out</button></div>
+  </div>`;
+}
+
 /* ============ boot ============ */
 render();
 syncNotifications();
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible'){ render(); syncNotifications(); } });
+cloudInit();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible'){ render(); syncNotifications(); if(user) pullAll(false); } else if(user){ pushAll(); } });
+setInterval(()=>{ if(user && document.visibilityState==='visible') pullAll(false); }, 60000);
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
