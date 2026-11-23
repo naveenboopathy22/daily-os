@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dailu-Os</title>
+<title>DailU-Os</title>
 <meta name="description" content="My daily plan, reminders, food and money in one place.">
 <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0c0e13" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Dailu-Os">
+<meta name="apple-mobile-web-app-title" content="DailU-Os">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -622,7 +622,7 @@ function plannedNotifications(){
     if(p.goals.cyber&&S.cyberDone<ROADMAP.length) out.push({key:k+':study', at:atTime(d,p.studyTime).getTime(), title:'💻 Study time: '+p.studyMins+' min', message:currentCheckpoint().t, priority:4});
     if(p.goals.food) out.push({key:k+':lunch', at:atTime(d,'13:30').getTime(), title:'🍽️ Log lunch', message:'What did you eat? Takes 10 seconds.'});
     out.push({key:k+':nag1', at:atTime(d,'20:30').getTime(), title:'🔥 Streak check', message:'Anything left today? Tick it off before midnight.', priority:4});
-    out.push({key:k+':nag2', at:atTime(d,'23:15').getTime(), title:'💀 Your streak dies at midnight', message:'If today\'s tasks aren\'t done, the streak resets. Open Dailu-Os now.', priority:5, tags:['skull']});
+    out.push({key:k+':nag2', at:atTime(d,'23:15').getTime(), title:'💀 Your streak dies at midnight', message:'If today\'s tasks aren\'t done, the streak resets. Open DailU-Os now.', priority:5, tags:['skull']});
   }
   for(const r of S.reminders){ for(const t of occurrences(r, now, end)) out.push({key:'r:'+r.id+':'+t, at:t, title:'⏰ '+r.title, message:describe(r), priority:4}); }
   return out.filter(n=>n.at>now+30000 && n.at<end);
@@ -750,7 +750,7 @@ app.addEventListener('click', e=>{
   if(e.target.id==='cancelEdit'){ S=load()||S; editing=false; obStep=0; render(); }
   if(e.target.id==='testNtfy' || e.target.id==='testNtfy2'){
     e.target.disabled=true;
-    ntfySend({title:'👋 Dailu-Os is connected', message:'This is where your nags will show up. No escape now.', tags:['tada']}).then(ok=>{ e.target.disabled=false; toast(ok?'Sent! Check your phone':'Failed — check your internet'); });
+    ntfySend({title:'👋 DailU-Os is connected', message:'This is where your nags will show up. No escape now.', tags:['tada']}).then(ok=>{ e.target.disabled=false; toast(ok?'Sent! Check your phone':'Failed — check your internet'); });
   }
 });
 
@@ -985,7 +985,7 @@ function renderMe(){
       <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     </div>
     <div class="card"><button class="danger" id="resetBtn">Reset everything</button></div>
-    <div class="footer-logo">${logoMark(28)}<span>Dailu-Os · go ahead, no one is left behind</span></div>`;
+    <div class="footer-logo">${logoMark(28)}<span>DailU-Os · go ahead, no one is left behind</span></div>`;
 }
 app.addEventListener('click', e=>{
   if(e.target.id==='editSetup'){ editing=true; obStep=0; render(); }
@@ -1006,9 +1006,9 @@ app.addEventListener('change', e=>{
 
 /* ============ logo ============ */
 function logoMark(size=72){
-  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Dailu-Os logo"><rect width="64" height="64" rx="15" fill="#1c2541"/><circle cx="32" cy="32" r="17" fill="none" stroke="#d6b56d" stroke-width="4.2"/><path d="M24.5 32.6l5.3 5.3 10.4-10.6" fill="none" stroke="#d6b56d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="DailU-Os logo"><rect width="64" height="64" rx="15" fill="#1c2541"/><circle cx="32" cy="32" r="17" fill="none" stroke="#d6b56d" stroke-width="4.2"/><path d="M24.5 32.6l5.3 5.3 10.4-10.6" fill="none" stroke="#d6b56d" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
-function wordmark(){ return `Dailu-Os`; }
+function wordmark(){ return `DailU-Os`; }
 const EYE='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 let pendingName='';
 const G_LOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
@@ -1060,7 +1060,7 @@ async function pullAll(first){
     const remote=await cloud.list(); const m=syncMeta();
     const hasRemote=!!remote.core;
     if(first && hasRemote && S.setupDone && m.ts.core===undefined){
-      const useCloud=confirm('Your account already has Dailu-Os data from another device.\n\nOK = use the account data on this device\nCancel = replace the account data with this device\'s data');
+      const useCloud=confirm('Your account already has DailU-Os data from another device.\n\nOK = use the account data on this device\nCancel = replace the account data with this device\'s data');
       if(useCloud){ const keepSched=S.scheduled; S.days={}; for(const id in remote) applyRemote(id, remote[id]); S.scheduled=keepSched||{}; setNotifier(false); }
       else { m.hash={}; m.ts={}; m.dirtyAt={}; rawSave(); pulling=false; await pushAll(); return; }
     } else if(first && hasRemote && !S.setupDone){
@@ -1197,12 +1197,12 @@ const FEAT_ICONS={
   sync:'<path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18 3v4.5h-4.5M6 21v-4.5h4.5"/>'
 };
 const ico=k=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${FEAT_ICONS[k]}</svg>`;
-function brandRow(){ return `<div class="brand">${logoMark(30)}<span>Dailu-Os</span></div>`; }
+function brandRow(){ return `<div class="brand">${logoMark(30)}<span>DailU-Os</span></div>`; }
 function authCard(canSync){
   const up=authView==='signup';
   if(authView==='signin'||authView==='signup') return `<div class="glass auth-card">
       <h2>${up?'Create your account':'Welcome back'}</h2>
-      <p class="muted small">${up?'Your Dailu-Os login. No Google needed, works on every device.':'Sign in with the email and password you made for Dailu-Os.'}</p>
+      <p class="muted small">${up?'Your DailU-Os login. No Google needed, works on every device.':'Sign in with the email and password you made for DailU-Os.'}</p>
       <div class="seg"><button type="button" class="${up?'':'on'}" data-auth="signin">Sign in</button><button type="button" class="${up?'on':''}" data-auth="signup">Create account</button></div>
       <form id="emailForm" autocomplete="on" novalidate>
         ${up?'<label>Your name</label><input name="name" autocomplete="given-name" placeholder="e.g. Naveen" required>':''}
@@ -1242,7 +1242,7 @@ function renderWelcome(){
     <section class="hero2">
       <div class="hero-copy reveal">
         <div class="eyebrow-pill"><i></i>Your life, one system</div>
-        <h1 class="display">Dailu<span class="dash">-</span><span class="gold">Os</span></h1>
+        <h1 class="display">DailU<span class="dash">-</span><span class="gold">Os</span></h1>
         <p class="slogan2">Go ahead. No one is left behind.</p>
         <p class="lede">Plans, reminders, food, money and goals in one calm, beautiful place, with just enough pressure to keep you moving.</p>
         <div class="stats-row"><div><b>1</b><span>place for everything</span></div><div><b>0</b><span>cost, forever</span></div><div><b>24/7</b><span>on your side</span></div></div>

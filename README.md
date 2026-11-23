@@ -1,4 +1,4 @@
-# Dailu-Os
+# DailU-Os
 
 **Go ahead. No one is left behind.**
 
