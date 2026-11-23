@@ -1,6 +1,8 @@
-# Dail-UTOS
+# Dailu-Os
 
-Get ahead. No one is left behind. Dail Your Terminal Operating System: timed daily plan, streaks and XP, typed reminders, food and macro tracking with pie charts, budget and savings, a cybersecurity roadmap, and push nags through the free ntfy app.
+**Go ahead. No one is left behind.**
+
+Timed daily plan, streaks and XP, typed reminders, food and macro tracking with pie charts, budget and savings, a cybersecurity roadmap, and push nags through the free ntfy app.
 
 Runs entirely in the browser. All personal data stays on the phone (localStorage). Costs ₹0.
 
