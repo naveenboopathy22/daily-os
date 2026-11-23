@@ -326,6 +326,63 @@ nav button:active{transform:scale(.94)}
 .ring .mid b .count,.hs b .count,.stat b .count{display:inline;font-size:inherit;color:inherit;letter-spacing:inherit;text-transform:none;margin:0}
 .ring .mid b{display:flex;align-items:baseline;justify-content:center;gap:1px}
 .ring .mid b small{font-size:16px;font-weight:700;opacity:.8}
+
+/* ===== options (steps, diet) & checkpoints ===== */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-grid .opt{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border-radius:16px;padding:13px 14px;white-space:normal}
+.opt-grid .opt b{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.opt-grid .opt span{font-size:12px;line-height:1.35;color:var(--muted);font-weight:500}
+.opt-grid .opt.on span{color:rgba(22,19,11,.72)}
+.opt-grid.diet .opt:last-child{grid-column:1/-1}
+.cp-list{display:grid;gap:8px;margin-bottom:10px}
+.cp-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line2);animation:rise .35s var(--ease) both}
+.cp-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);flex:none}
+.cp-t{flex:1;font-weight:550;display:flex;justify-content:space-between;gap:10px}
+.cp-t span{color:var(--muted);font-size:13px;font-weight:500}
+.cp-x{background:none;box-shadow:none;color:var(--faint);padding:4px 6px;font-size:14px}
+.cp-add{display:grid;grid-template-columns:1fr 110px auto;gap:8px}
+.cp-add button{padding:12px 16px}
+.sugg{margin-top:10px}
+.sugg-chip{background:rgba(255,255,255,.04);border:1px dashed var(--line2);color:var(--muted);box-shadow:none;padding:7px 12px;border-radius:99px;font-size:13px;font-weight:550}
+.sugg-chip:hover{color:var(--gold-ink);border-color:rgba(226,194,126,.4)}
+.nav-brand{display:none}
+.screen .dashb>.col>*,.screen .gd>*{animation:rise .6s var(--ease) both}
+.screen .dashb>.col>*:nth-child(2),.screen .gd>*:nth-child(2){animation-delay:.05s}
+.screen .dashb>.col>*:nth-child(3),.screen .gd>*:nth-child(3){animation-delay:.1s}
+.screen .dashb>.col>*:nth-child(n+4),.screen .gd>*:nth-child(n+4){animation-delay:.15s}
+.screen .dashb>.col:nth-child(2)>*{animation-delay:.12s}
+@media (max-width:560px){.cp-add{grid-template-columns:1fr auto}.cp-add #cpNew{grid-column:1/-1}}
+
+/* ===== desktop layout ===== */
+@media (min-width:1024px){
+  body.has-nav{padding:0 0 0 252px}
+  body.has-nav main{max-width:1180px;padding:40px 48px 64px;margin:0 auto}
+  nav{left:0;top:0;bottom:0;right:auto;transform:none;width:252px;height:100vh;border-radius:0;border:0;border-right:1px solid var(--line2);
+    flex-direction:column;justify-content:flex-start;gap:6px;padding:24px 16px;background:rgba(9,11,18,.78)}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--sf-display);font-weight:700;font-size:18px;letter-spacing:-.02em;padding:4px 10px 26px}
+  .nav-brand svg{border-radius:8px}
+  nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:14px;height:48px;padding:0 14px;font-size:15px;font-weight:600;letter-spacing:-.01em;border-radius:14px}
+  nav button .ic{height:22px}
+  nav .ind{top:84px;left:16px;bottom:auto;width:calc(100% - 32px);height:48px;border-radius:14px;transform:translateY(calc(var(--i,0)*54px))}
+  .toast{left:calc(50% + 126px);bottom:32px}
+  .page-head{margin:0 0 26px}
+  .page-head .avatar{display:none}
+  h1{font-size:44px}
+  .dashb{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+  .dashb .card{margin:0 0 24px}
+  .gd{columns:2;column-gap:24px}
+  .gd>*{break-inside:avoid;margin:0 0 24px!important;display:block}
+  .gd>.stats{display:grid}
+  .gd-remind{columns:1;max-width:760px}
+  .hero-card{padding:26px}
+  .ring{transform:scale(1.12);transform-origin:left center;margin-right:14px}
+  .task:hover .title{color:var(--gold-ink)}
+  body:not(.has-nav) main:not(.wide){max-width:680px;padding-top:48px}
+  .ob-card{padding:32px}
+  .opt-grid{grid-template-columns:repeat(3,1fr)}
+  .opt-grid.diet .opt:last-child{grid-column:auto}
+}
+@media (min-width:1440px){ .dashb{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) } body.has-nav main{max-width:1280px} }
 </style>
 </head>
 <body>
@@ -369,10 +426,10 @@ function fresh(){
   return {
     v:1, setupDone:false, welcomeSeen:false,
     profile:{
-      name:'', age:'', sex:'male', heightCm:'', weightKg:'', activity:'1.375',
+      name:'', age:'', sex:'male', heightCm:'', weightKg:'', activity:'1.375', steps:'3-7k',
       wake:'06:30', sleep:'23:00', workStart:'09:30', workEnd:'18:30', workDays:[1,2,3,4,5],
       goals:{cyber:true, gym:true, food:true, money:true},
-      cyberLevel:'beginner', trainDays:4, trainPlace:'gym', gymTime:'07:00',
+      career:'', checkpoints:[], cyberLevel:'beginner', trainDays:4, trainPlace:'gym', gymTime:'07:00',
       studyTime:'19:30', studyMins:45, bodyGoal:'recomp',
       diet:'nonveg', avoid:'',
       salary:'', bills:'', savingsTarget:'', currency:'INR', alsoCur:'', fxRate:'',
@@ -582,15 +639,30 @@ function macroDonut(t, size=132){
   const legend=parts.map(([n,kc,g,col])=>`<div class="lg"><i style="background:${col}"></i><span>${n}</span><b>${Math.round(g)} g</b><span class="muted">${total?Math.round(kc/total*100):0}%</span></div>`).join('');
   return `<div class="donut"><svg viewBox="0 0 132 132" width="${size}" height="${size}" role="img" aria-label="Calories by macro">${rings}<text x="66" y="64" text-anchor="middle" font-size="22" font-weight="700" fill="var(--ink)" style="font-family:var(--sf-rounded)">${Math.round(t.k)}</text><text x="66" y="82" text-anchor="middle" font-size="11" fill="var(--muted)">kcal</text></svg><div class="legend">${legend}</div></div>`;
 }
-const MEALS = {
-  v:['Paneer bhurji + 2 roti','Soya chunk curry + rice','Dal + rice + curd','Oats + milk + banana + peanut butter','Chole + roti + salad','Sprouts chaat + curd','Rajma chawal + salad','Tofu stir-fry + roti','Besan chilla + curd'],
-  e:['4-egg omelette + 2 toast','Egg curry + rice','Egg bhurji + roti','Boiled eggs + banana'],
-  n:['Chicken curry + rice','Grilled chicken + 2 roti + salad','Fish curry + rice','Chicken rice bowl + curd']
-};
+const STEPS=[['lt3k','Under 3,000','Mostly sitting',1.2],['3-7k','3,000 – 7,000','Some walking',1.375],['7-10k','7,000 – 10,000','On my feet a lot',1.55],['10-15k','10,000 – 15,000','Very active',1.725],['15k+','15,000+','Athlete-level',1.9]];
+const DIETS=[
+  ['vegan','Vegan','Plants only. No meat, fish, eggs or dairy.',[]],
+  ['vegetarian','Vegetarian','No meat or fish. Dairy is fine.',['dairy']],
+  ['ovo','Ovo-vegetarian','Eggs and plants. No meat, fish or dairy.',['egg']],
+  ['eggetarian','Veg + eggs','Vegetarian plus eggs and dairy.',['dairy','egg']],
+  ['pescatarian','Pescatarian','Fish and plants, plus eggs and dairy. No meat.',['dairy','egg','fish']],
+  ['carnitarian','Carnitarian','Meat, eggs and dairy, but no fish or seafood.',['dairy','egg','meat']],
+  ['nonveg','Everything','Meat, fish, eggs, dairy and plants.',['dairy','egg','fish','meat']]
+];
+const MEAL_LIST=[
+  ['Chana masala + rice',[]],['Tofu stir-fry + roti',[]],['Rajma chawal + salad',[]],['Soya chunk curry + rice',[]],
+  ['Oats + soy milk + banana + peanut butter',[]],['Sprouts chaat + lemon',[]],['Dal tadka + rice + salad',[]],['Besan chilla + mint chutney',[]],
+  ['Paneer bhurji + 2 roti',['dairy']],['Dal + rice + curd',['dairy']],['Greek yogurt + berries + nuts',['dairy']],['Palak paneer + roti',['dairy']],
+  ['4-egg omelette + toast',['egg']],['Egg bhurji + roti',['egg']],['Boiled eggs + banana',['egg']],['Egg curry + rice',['egg']],
+  ['Fish curry + rice',['fish']],['Grilled fish + salad + roti',['fish']],['Prawn stir-fry + rice',['fish']],['Tuna salad wrap',['fish']],
+  ['Chicken curry + rice',['meat']],['Grilled chicken + 2 roti + salad',['meat']],['Chicken rice bowl + curd',['meat','dairy']],['Mutton keema + roti',['meat']]
+];
+function dietOf(p){ const m={v:'vegetarian',egg:'eggetarian'}; const id=m[p.diet]||p.diet; return DIETS.find(d=>d[0]===id)||DIETS[6]; }
+function stepsFactor(p){ const st=STEPS.find(x=>x[0]===p.steps); if(st) return st[3]; return num(p.activity)||1.375; }
+const CAREER_SUGGEST=['Study 45 min','Do one practice lab','Read 10 pages','Watch one lesson + take notes','Build for 30 min','Apply to 1 job','Share progress online','Review yesterday\'s notes'];
+function isCyber(p){ return /cyber|security|infosec|pentest|ethical hack|\bsoc\b|red team|blue team/i.test(p.career||''); }
 function mealIdeas(){
-  const p=S.profile; let list=[...MEALS.v];
-  if(p.diet==='egg'||p.diet==='nonveg') list=list.concat(MEALS.e);
-  if(p.diet==='nonveg') list=list.concat(MEALS.n);
+  const p=S.profile, ok=dietOf(p)[3]; let list=MEAL_LIST.filter(([,tags])=>tags.every(t=>ok.includes(t))).map(m=>m[0]);
   const avoid=(p.avoid||'').toLowerCase().split(/[,\s]+/).filter(w=>w.length>2);
   return list.filter(m=>!avoid.some(a=>m.toLowerCase().includes(a)));
 }
@@ -602,7 +674,7 @@ function body(){
   if(!w||!h) return null;
   const bmi=w/((h/100)**2);
   const bmr=10*w+6.25*h-5*a+(p.sex==='female'?-161:5);
-  const tdee=bmr*num(p.activity||1.375);
+  const tdee=bmr*stepsFactor(p);
   const adj={bulk:300,cut:-400,recomp:0}[p.bodyGoal]||0;
   const kcal=Math.round((tdee+adj)/10)*10;
   const protein=Math.round(w*(p.bodyGoal==='cut'?2.0:1.8));
@@ -641,7 +713,12 @@ function planFor(d){
     add('lunch','13:00','Mindful lunch, no screens', 'Idea: '+mealFor(d,1), 10, 'food');
     add('protein', minus(p.briefNight,30), 'Log food & hit protein', b?('Target: '+b.protein+'g protein · '+b.kcal+' kcal'):'Log what you ate', 15, 'food');
   }
-  if(p.goals.cyber && S.cyberDone<ROADMAP.length) add('study', p.studyTime, 'Cybersec: '+p.studyMins+' min', currentCheckpoint().t, 25, 'cyber');
+  if(p.goals.cyber){
+    const career=p.career||'Cybersecurity';
+    const detail=isCyber(p)&&S.cyberDone<ROADMAP.length?currentCheckpoint().t:'Deep work on '+career+'. One focused block, no phone.';
+    add('study', p.studyTime, career+' · '+p.studyMins+' min', detail, 25, 'cyber');
+    (p.checkpoints||[]).forEach(c=>add('cp-'+c.id, c.time||minus(p.studyTime,-60), c.t, 'Your checkpoint for '+career, 15, 'cyber'));
+  }
   if(p.goals.money) add('spend', minus(p.briefNight,25), "Log today's spending", m.daily?('Daily budget '+cur(m.daily)):'Log anything you spent', 5, 'money');
   add('checkin', minus(p.briefNight,15), 'Evening check-in', 'How did today go?', 15, 'mind');
   tasks.sort((a,b)=>a.time.localeCompare(b.time));
@@ -755,11 +832,11 @@ function plannedNotifications(){
   const p=S.profile, out=[], now=Date.now(), end=now+HORIZON_H*3600000;
   for(let i=0;i<=3;i++){
     const d=addDays(today(),i), k=dkey(d), plan=planFor(d), w=workoutFor(d), next=addDays(d,1), nplan=planFor(next), nw=workoutFor(next);
-    const bits=(pl,wk,dd)=>{ const b=[]; if(wk) b.push('🏋️ '+wk.name+' '+fmt12(p.gymTime)); if(p.goals.cyber&&S.cyberDone<ROADMAP.length) b.push('💻 '+currentCheckpoint().t+' '+fmt12(p.studyTime)); b.push(pl.length+' tasks'); return b.join(' · '); };
+    const bits=(pl,wk,dd)=>{ const b=[]; if(wk) b.push('🏋️ '+wk.name+' '+fmt12(p.gymTime)); if(p.goals.cyber) b.push('🎯 '+(p.career||'Career')+' '+fmt12(p.studyTime)); b.push(pl.length+' tasks'); return b.join(' · '); };
     out.push({key:k+':morning', at:atTime(d,p.briefMorning).getTime(), title:'☀️ Good morning'+(p.name?', '+p.name:''), message:'Today: '+bits(plan,w,d)+'. Let\'s go.', tags:['sunny']});
     out.push({key:k+':night', at:atTime(d,p.briefNight).getTime(), title:'🌙 Heads-up for tomorrow', message:bits(nplan,nw,next)+'. Sleep by '+fmt12(p.sleep)+'.', tags:['crescent_moon']});
     if(w) out.push({key:k+':gym', at:atTime(d,minus(p.gymTime,10)).getTime(), title:'🏋️ '+w.name+' day in 10 min', message:'Get your shoes on. Streak is watching.', priority:4});
-    if(p.goals.cyber&&S.cyberDone<ROADMAP.length) out.push({key:k+':study', at:atTime(d,p.studyTime).getTime(), title:'💻 Study time: '+p.studyMins+' min', message:currentCheckpoint().t, priority:4});
+    if(p.goals.cyber) out.push({key:k+':study', at:atTime(d,p.studyTime).getTime(), title:'🎯 '+(p.career||'Career')+': '+p.studyMins+' min', message:isCyber(p)&&S.cyberDone<ROADMAP.length?currentCheckpoint().t:'Time for your focus block.', priority:4});
     if(p.goals.food) out.push({key:k+':lunch', at:atTime(d,'13:30').getTime(), title:'🍽️ Log lunch', message:'What did you eat? Takes 10 seconds.'});
     out.push({key:k+':nag1', at:atTime(d,'20:30').getTime(), title:'🔥 Streak check', message:'Anything left today? Tick it off before midnight.', priority:4});
     out.push({key:k+':nag2', at:atTime(d,'23:15').getTime(), title:'💀 Your streak dies at midnight', message:'If today\'s tasks aren\'t done, the streak resets. Open DailU-Os now.', priority:5, tags:['skull']});
@@ -790,16 +867,25 @@ const TABS=[['today','<svg viewBox="0 0 24 24" width="22" height="22" fill="none
 function bgOn(){ try{ return localStorage.getItem('dailyos.bg')!=='0'; }catch(e){ return true; } }
 let lastScreen='';
 function appBackground(){ if(bgOn()){ document.body.classList.remove('static-bg'); Shader.start(true); } else { Shader.stop(); document.body.classList.add('static-bg'); } }
+function migrate(){
+  const p=S.profile; if(!p) return;
+  if(!p.checkpoints) p.checkpoints=[];
+  if(p.goals&&p.goals.cyber&&!p.career) p.career='Cybersecurity';
+  if(p.diet==='v') p.diet='vegetarian'; if(p.diet==='egg') p.diet='eggetarian';
+  if(!p.steps){ const a=num(p.activity); p.steps=a<=1.2?'lt3k':a<=1.375?'3-7k':a<=1.55?'7-10k':'10-15k'; }
+}
 function render(){
+  migrate();
   if(!(authView || (!S.setupDone && !S.welcomeSeen))){ document.body.classList.remove('landing-mode'); app.classList.remove('wide'); appBackground(); }
-  if(authView || (!S.setupDone && !S.welcomeSeen)){ nav.classList.add('hidden'); renderWelcome(); return; }
-  if(!S.setupDone || editing){ nav.classList.add('hidden'); renderOnboarding(); if(lastScreen!=='ob'+obStep){ window.scrollTo(0,0); lastScreen='ob'+obStep; } return; }
-  nav.classList.remove('hidden');
+  if(authView || (!S.setupDone && !S.welcomeSeen)){ nav.classList.add('hidden'); document.body.classList.remove('has-nav'); renderWelcome(); return; }
+  if(!S.setupDone || editing){ nav.classList.add('hidden'); document.body.classList.remove('has-nav'); renderOnboarding(); if(lastScreen!=='ob'+obStep){ window.scrollTo(0,0); lastScreen='ob'+obStep; } return; }
+  nav.classList.remove('hidden'); document.body.classList.add('has-nav');
   const ti=TABS.findIndex(t=>t[0]===tab);
-  if(!nav.querySelector('.ind')) nav.innerHTML='<span class="ind"></span>'+TABS.map(([id,ic,l])=>`<button data-tab="${id}"><span class="ic">${ic}</span>${l}</button>`).join('');
+  if(!nav.querySelector('.ind')) nav.innerHTML='<div class="nav-brand">'+logoMark(30)+'<span>DailU-Os</span></div><span class="ind"></span>'+TABS.map(([id,ic,l])=>`<button data-tab="${id}"><span class="ic">${ic}</span>${l}</button>`).join('');
   nav.style.setProperty('--i',ti); nav.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   if(lastScreen!==tab) ringPrev=null;
   ({today:renderToday, remind:renderRemind, food:renderFood, money:renderMoney, me:renderMe})[tab]();
+  if(tab!=='today' && !app.querySelector(':scope > .gd')){ const kids=[...app.children].slice(1); if(kids.length){ const gd=document.createElement('div'); gd.className='gd gd-'+tab; kids.forEach(k=>gd.appendChild(k)); app.appendChild(gd); } }
   requestAnimationFrame(()=>requestAnimationFrame(()=>app.querySelectorAll('.ring .val').forEach(c=>{ c.style.strokeDashoffset=c.dataset.off; })));
   if(lastScreen!==tab){ app.classList.remove('screen'); void app.offsetWidth; app.classList.add('screen'); window.scrollTo(0,0); countUp(); lastScreen=tab; }
   else app.classList.remove('screen');
@@ -823,25 +909,32 @@ function renderOnboarding(){
     ${field('Your name','name',p.name,'text','autocomplete="given-name"')}
     <div class="grid2">${field('Age','age',p.age,'number','inputmode="numeric"')}<div><label>Sex (for calorie maths)</label><select name="sex"><option value="male" ${p.sex==='male'?'selected':''}>Male</option><option value="female" ${p.sex==='female'?'selected':''}>Female</option></select></div></div>
     <div class="grid2">${field('Height (cm)','heightCm',p.heightCm,'number','inputmode="decimal"')}${field('Weight (kg)','weightKg',p.weightKg,'number','inputmode="decimal"')}</div>
-    <label>How active is your day (outside workouts)?</label><select name="activity">
-      ${[['1.2','Desk job, little walking'],['1.375','Light: some walking'],['1.55','Moderate: on my feet a lot'],['1.725','Very active job']].map(([v,l])=>`<option value="${v}" ${String(p.activity)===v?'selected':''}>${l}</option>`).join('')}</select>`;
+    <label>How many steps do you walk on a normal day?</label>
+    <div class="opt-grid" data-chips="steps" data-multi="0">${STEPS.map(([id,t,sub])=>`<button type="button" class="chip opt ${(p.steps||'3-7k')===id?'on':''}" data-v="${id}"><b>${t}</b><span>${sub}</span></button>`).join('')}</div>
+    <p class="small muted">Not sure? Your phone's Health app shows your daily average. This sets your calorie burn.</p>`;
   if(obStep===1) html=`<h1>How does your day look?</h1>
     <div class="grid2">${field('Wake up','wake',p.wake,'time')}${field('Sleep','sleep',p.sleep,'time')}</div>
     <div class="grid2">${field('Work starts','workStart',p.workStart,'time')}${field('Work ends','workEnd',p.workEnd,'time')}</div>
     <label>Work days</label>${chips('workDays',[[1,'Mon'],[2,'Tue'],[3,'Wed'],[4,'Thu'],[5,'Fri'],[6,'Sat'],[0,'Sun']],p.workDays,true)}
     <div class="grid2">${field('Morning brief','briefMorning',p.briefMorning,'time')}${field('Night heads-up','briefNight',p.briefNight,'time')}</div>`;
   if(obStep===2) html=`<h1>What are you working on?</h1>
-    <label>Goals</label>${chips('goals',[['cyber','💻 Cybersecurity'],['gym','🏋️ Bodybuilding'],['food','🥗 Good eating + mindfulness'],['money','💰 Savings']],Object.keys(p.goals).filter(k=>p.goals[k]),true)}
-    <h3>Cybersecurity</h3>
-    <label>Where are you starting?</label>${chips('cyberLevel',[['beginner','Total beginner'],['some','Know some networking/Linux']],p.cyberLevel)}
-    <div class="grid2">${field('Study time','studyTime',p.studyTime,'time')}<div><label>Minutes per day</label><select name="studyMins">${[20,30,45,60,90].map(v=>`<option ${+p.studyMins===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
-    <h3>Bodybuilding</h3>
+    <label>Pick what you want to stay on top of</label>${chips('goals',[['cyber','🎯 Career or skill'],['gym','🏋️ Fitness'],['food','🥗 Mindful eating'],['money','💰 Savings']],Object.keys(p.goals).filter(k=>p.goals[k]),true)}
+    <h3>Career or skill</h3>
+    ${field('What are you working towards?','career',p.career,'text','placeholder="e.g. Cybersecurity, UX design, Data science, Spanish"')}
+    <div class="grid2">${field('Daily focus time','studyTime',p.studyTime,'time')}<div><label>Minutes per day</label><select name="studyMins">${[20,30,45,60,90,120].map(v=>`<option ${+p.studyMins===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+    <label>Your daily checkpoints</label>
+    <div class="cp-list">${(p.checkpoints||[]).map(c=>`<div class="cp-item"><span class="cp-dot"></span><div class="cp-t">${esc(c.t)}${c.time?`<span>${fmt12(c.time)}</span>`:''}</div><button type="button" class="cp-x" data-delcp="${c.id}" aria-label="Remove">✕</button></div>`).join('')||'<p class="small muted" style="margin:4px 0 10px">Add 1–3 small things you\'ll do every day. They show up on your Today plan.</p>'}</div>
+    <div class="cp-add"><input id="cpNew" placeholder="e.g. Finish one TryHackMe room" maxlength="60"><input id="cpTime" type="time" aria-label="Time (optional)"><button type="button" class="ghost" id="cpAdd">Add</button></div>
+    <div class="chips sugg">${CAREER_SUGGEST.map(x=>`<button type="button" class="sugg-chip" data-sugg="${esc(x)}">+ ${esc(x)}</button>`).join('')}</div>
+    ${isCyber(p)?`<label>Where are you starting in cybersecurity?</label>${chips('cyberLevel',[['beginner','Total beginner'],['some','Know some networking/Linux']],p.cyberLevel)}`:''}
+    <h3>Fitness</h3>
     <label>Training days per week</label>${chips('trainDays',[[2,'2'],[3,'3'],[4,'4'],[5,'5'],[6,'6']],p.trainDays)}
     <label>Where?</label>${chips('trainPlace',[['gym','Gym'],['home','Home']],p.trainPlace)}
     ${field('Workout time','gymTime',p.gymTime,'time')}
     <label>Body goal</label>${chips('bodyGoal',[['bulk','Build muscle (bulk)'],['cut','Lose fat (cut)'],['recomp','Both, slowly (recomp)']],p.bodyGoal)}`;
   if(obStep===3) html=`<h1>What do you eat?</h1>
-    <label>Diet</label>${chips('diet',[['v','Veg'],['egg','Veg + eggs'],['nonveg','Non-veg']],p.diet)}
+    <label>Tap the one that fits you</label>
+    <div class="opt-grid diet" data-chips="diet" data-multi="0">${DIETS.map(([id,t,sub])=>`<button type="button" class="chip opt ${dietOf(p)[0]===id?'on':''}" data-v="${id}"><b>${t}</b><span>${sub}</span></button>`).join('')}</div>
     ${field('Anything you won\'t eat? (comma separated)','avoid',p.avoid,'text','placeholder="e.g. mushroom, fish"')}
     ${(()=>{ readForm(); const b=body(); return b?`<div class="card"><h2>Your numbers</h2><div class="kv"><span>BMI</span><b>${b.bmi} · ${b.cat}</b></div><div class="kv"><span>Daily calories</span><b>${b.kcal} kcal</b></div><div class="kv"><span>Protein</span><b>${b.protein} g</b></div><p class="muted small">Estimates from the Mifflin-St Jeor formula. General guidance, not medical advice.</p></div>`:''; })()}`;
   if(obStep===4) html=`<h1>Money</h1><p class="muted">Monthly, after tax. Only used for maths on this phone.</p>
@@ -884,13 +977,22 @@ app.addEventListener('click', e=>{
   const cp=e.target.closest('[data-copy]');
   if(cp){ navigator.clipboard?.writeText(cp.dataset.copy).then(()=>toast('Copied'),()=>{}); return; }
 });
+app.addEventListener('click', e=>{
+  const addCp=(t,time)=>{ readForm(); t=String(t||'').trim(); if(!t) return toast('Type a checkpoint first'); const p=S.profile; p.checkpoints=p.checkpoints||[];
+    if(p.checkpoints.length>=6) return toast('Keep it to 6 or fewer'); p.checkpoints.push({id:rand(6),t,time:time||''}); renderOnboarding(); };
+  if(e.target.id==='cpAdd'){ addCp(document.getElementById('cpNew').value, document.getElementById('cpTime').value); }
+  const sg=e.target.closest('[data-sugg]'); if(sg) addCp(sg.dataset.sugg,'');
+  const dl=e.target.closest('[data-delcp]'); if(dl){ readForm(); S.profile.checkpoints=(S.profile.checkpoints||[]).filter(c=>c.id!==dl.dataset.delcp); renderOnboarding(); }
+});
+app.addEventListener('keydown', e=>{ if(e.target.id==='cpNew' && e.key==='Enter'){ e.preventDefault(); document.getElementById('cpAdd').click(); } });
 app.addEventListener('submit', e=>{
   if(e.target.id!=='ob') return; e.preventDefault(); readForm();
   const p=S.profile;
   if(obStep===0 && (!num(p.heightCm)||!num(p.weightKg))){ toast('Add height and weight for your macros'); return; }
   if(obStep===2 && !Object.values(p.goals).some(Boolean)){ toast('Pick at least one goal'); return; }
+  if(obStep===2 && p.goals.cyber && !String(p.career||'').trim()){ toast('Type the career or skill you\'re working on'); return; }
   if(obStep<OB_STEPS.length-1){ obStep++; render(); return; }
-  if(!S.setupDone){ S.cyberDone = p.cyberLevel==='some'?7:0; setNotifier(true); }
+  if(!S.setupDone){ S.cyberDone = isCyber(p)&&p.cyberLevel==='some'?7:0; setNotifier(true); }
   S.setupDone=true; editing=false; obStep=0;
   save(); tab='today'; render(); syncNotifications(true);
 });
@@ -947,6 +1049,7 @@ function renderToday(){
   const tomorrow=planFor(addDays(d,1)), tw=workoutFor(addDays(d,1));
   app.innerHTML=`
     ${pageHead(greet+' · '+DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()], p.name?'Hi, '+esc(p.name):'Today')}
+    <div class="dashb"><div class="col">
     <div class="card hero-card">
       ${ringSvg(c.pct,c.done,c.total)}
       <div class="hero-stats">
@@ -964,9 +1067,11 @@ function renderToday(){
         <div class="body"><div class="title">${esc(t.title)}</div><div class="detail">${esc(t.detail)}</div></div>
         <div class="xp">+${t.xp}</div>
         <button class="check" data-task="${t.id}" aria-label="Done">${IC.check}</button></div>`).join('')}</div>
+      ${p.goals.cyber?`<button class="link" id="editCps" style="margin-top:6px">+ Edit my daily checkpoints</button>`:''}
     </div>
-    ${p.goals.cyber?`<div class="card">
-      <p class="eyebrow" style="margin:0 0 6px">Cybersec checkpoint · ${S.cyberDone<ROADMAP.length?cp.phase+' · '+(S.cyberDone+1)+' of '+ROADMAP.length:'Roadmap complete'}</p>
+    </div><div class="col">
+    ${p.goals.cyber&&isCyber(p)?`<div class="card">
+      <p class="eyebrow" style="margin:0 0 6px">Cybersec roadmap · ${S.cyberDone<ROADMAP.length?cp.phase+' · '+(S.cyberDone+1)+' of '+ROADMAP.length:'Roadmap complete'}</p>
       <h2 style="margin:6px 0">${S.cyberDone<ROADMAP.length?esc(cp.t):'🎉 You finished the roadmap'}</h2>
       <div class="bar"><i style="width:${Math.round(S.cyberDone/ROADMAP.length*100)}%"></i></div>
       <p class="small muted">Study it across as many sessions as you need. Tap below only when you could explain it to a friend.</p>
@@ -985,7 +1090,8 @@ function renderToday(){
     <div class="card"><div class="card-head"><h2>Tomorrow</h2><span class="pill">Heads-up</span></div>
       ${tomorrow.map(t=>`<div class="kv"><span>${fmt12(t.time)}</span><span style="text-align:right">${esc(t.title)}</span></div>`).join('')}
       ${tw?`<p class="small muted">${tw.name} day. Lay out your gym clothes tonight.</p>`:''}
-    </div>`;
+    </div>
+    </div></div>`;
 }
 function checkinHtml(dd){
   const c=dd.checkin;
@@ -1156,7 +1262,7 @@ function renderMe(){
     <div class="card"><div class="setting"><div><div class="t">Your setup</div><div class="s">Routine, goals, body and money</div></div><button class="ghost" id="editSetup">Edit</button></div>
       <div class="setting"><div><div class="t">Animated background</div><div class="s">Live shader behind the app. Off saves battery.</div></div><button class="switch ${bgOn()?'on':''}" id="bgToggle" aria-label="Toggle"><i></i></button></div></div>
     ${accountCard()}
-    ${p.goals.cyber?`<div class="card"><div class="card-head"><h2>Cybersec roadmap</h2><button class="link" id="cpToggle">${cpOpen?'Hide':'Show all'}</button></div>
+    ${p.goals.cyber&&isCyber(p)?`<div class="card"><div class="card-head"><h2>Cybersec roadmap</h2><button class="link" id="cpToggle">${cpOpen?'Hide':'Show all'}</button></div>
       <p class="small muted">Tap a checkpoint to set your progress there.</p>
       ${ROADMAP.map((c,i)=>(cpOpen||Math.abs(i-S.cyberDone)<=2)?`<div class="cp ${i<S.cyberDone?'done':i===S.cyberDone?'cur':''}" data-cp="${i}"><span class="n">${i+1}</span><span>${esc(c.t)} <span class="small muted">· ${c.phase}</span></span></div>`:'').join('')}
     </div>`:''}
@@ -1175,6 +1281,7 @@ function renderMe(){
 }
 app.addEventListener('click', e=>{
   if(e.target.id==='editSetup'){ editing=true; obStep=0; render(); }
+  if(e.target.id==='editCps'){ editing=true; obStep=2; render(); }
   if(e.target.closest('#bgToggle')){ try{ localStorage.setItem('dailyos.bg', bgOn()?'0':'1'); }catch(_){} appBackground(); render(); }
   if(e.target.id==='cpToggle'){ cpOpen=!cpOpen; render(); }
   const c=e.target.closest('[data-cp]'); if(c){ const i=+c.dataset.cp; if(confirm('Set your progress to checkpoint '+(i+1)+'?')){ S.cyberDone=i; save(); render(); } }
