@@ -1,6 +1,6 @@
 {
-  "name": "Dail U OS",
-  "short_name": "Dail U OS",
+  "name": "Dail-UTOS",
+  "short_name": "Dail-UTOS",
   "description": "My daily plan, reminders, food and money in one place.",
   "start_url": "./",
   "scope": "./",

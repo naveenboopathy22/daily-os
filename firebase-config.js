@@ -1,5 +1,5 @@
 // Firebase settings for sign-in and sync across devices.
-// Set to null to use Dail U OS on this device only.
+// Set to null to use Dail-UTOS on this device only.
 // These values are safe to be public: access is protected by Firestore
 // security rules (only you can read/write your data) and authorised domains.
 window.DAILYOS_FIREBASE = {
