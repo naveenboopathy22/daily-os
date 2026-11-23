@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>DailU-Os</title>
 <meta name="description" content="My daily plan, reminders, food and money in one place.">
-<meta name="theme-color" content="#06080e">
+<meta name="theme-color" content="#f1e9d8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DailU-Os">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400..800&display=swap" rel="stylesheet">
 <style>
 :root{
   /* DailU-Os · Midnight & Champagne (dark premium) */
@@ -383,6 +383,153 @@ nav button:active{transform:scale(.94)}
   .opt-grid.diet .opt:last-child{grid-column:auto}
 }
 @media (min-width:1440px){ .dashb{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) } body.has-nav main{max-width:1280px} }
+/* =========================================================
+   OLD MONEY THEME · Riviera navy, ivory plaster, cognac, brass
+   ========================================================= */
+:root{
+  --bg:#f1e9d8; --card:#fbf7ee; --ink:#14233f; --muted:rgba(20,35,63,.66); --faint:rgba(20,35,63,.44);
+  --line:rgba(20,35,63,.10); --line2:rgba(20,35,63,.17);
+  --accent:#14233f; --on-accent:#f6efe0; --accent-soft:rgba(20,35,63,.06);
+  --gold:#b0843a; --gold-soft:rgba(176,132,58,.12); --gold-ink:#8a6326;
+  --cognac:#9a5a2f; --red:#a8322b; --forest:#3d5b3e; --sea:#24407a;
+  --warn:#a8322b; --bad:#a8322b; --good:#3d5b3e;
+  --shadow:0 1px 0 rgba(255,255,255,.8) inset,0 1px 2px rgba(20,35,63,.05),0 14px 34px rgba(20,35,63,.07);
+  --radius:6px;
+  --serif:"Cormorant Garamond","Cormorant",Garamond,"Times New Roman",serif;
+  --m-p:#24407a; --m-c:#c19448; --m-f:#9a5a2f;
+  color-scheme:light;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body.static-bg{background:linear-gradient(180deg,#f4eddf,#ece2cd);background-attachment:fixed}
+/* type */
+h1{font-family:var(--serif);font-weight:600;font-size:42px;line-height:1.02;letter-spacing:-.01em;background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink)}
+h2{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:0;line-height:1.1}
+h3{font-family:var(--sf);color:var(--gold-ink);letter-spacing:.2em;font-size:11px}
+.eyebrow{font-family:var(--sf);font-size:11px;letter-spacing:.24em;font-weight:600;color:var(--gold-ink);text-transform:uppercase}
+.big{font-family:var(--serif);font-weight:600;font-size:52px;letter-spacing:-.01em;background:none;-webkit-background-clip:border-box;color:var(--ink)}
+.muted{color:var(--muted)}
+/* surfaces */
+.card,.stat{background:var(--card);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card{padding:22px}
+.card-head{padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.alert{background:#f7e9e3;border-color:rgba(168,50,43,.35)}
+.trial{border-color:rgba(176,132,58,.45);background:linear-gradient(180deg,#fbf6ea,#f6eedc)}
+/* buttons: tailored, letter-spaced */
+button,.btn{background:var(--ink);color:var(--on-accent);border-radius:3px;box-shadow:none;font-family:var(--sf);font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:14px 20px}
+button:hover{filter:brightness(1.12)}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+button.plain,button.link{background:none;color:var(--gold-ink);padding:8px 2px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+button.danger{background:none;color:var(--red);text-transform:none;letter-spacing:0;font-size:15px}
+.check,.chip,nav button,.switch,.seg button,.mood button,.cp-x,.sugg-chip,.avatar,.eye,button.google,.opt,.glass-btn,.topcta,[data-delfood],[data-delspend],[data-delrem]{text-transform:none;letter-spacing:normal;font-size:inherit}
+[data-delfood],[data-delspend],[data-delrem]{font-size:16px}
+/* inputs */
+input,select,textarea{background:#fffdf8;border:1px solid var(--line2);border-radius:3px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(20,35,63,.10)}
+input::placeholder,textarea::placeholder{color:rgba(20,35,63,.34)}
+label{color:var(--muted)}
+/* chips & option cards */
+.chip{background:#fffdf8;border:1px solid var(--line2);color:var(--ink);border-radius:99px;font-weight:550}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--on-accent);box-shadow:none}
+.opt-grid .opt{border-radius:4px}
+.opt-grid .opt b{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:0}
+.opt-grid .opt.on span{color:rgba(246,239,224,.78)}
+.sugg-chip{background:transparent;border:1px dashed rgba(20,35,63,.25);color:var(--muted)}
+.sugg-chip:hover{color:var(--ink);border-color:var(--ink)}
+.cp-item{background:#fffdf8;border-color:var(--line2);border-radius:4px}
+.cp-dot{background:var(--gold);box-shadow:none}
+.seg{background:rgba(20,35,63,.06);border-radius:4px} .seg button{color:var(--muted);border-radius:3px} .seg button.on{background:#fffdf8;color:var(--ink);box-shadow:0 1px 3px rgba(20,35,63,.12)}
+.mood button{background:#fffdf8;border-color:var(--line2);border-radius:4px}
+.mood button.on{background:rgba(176,132,58,.14);border-color:var(--gold)}
+.switch{background:rgba(20,35,63,.18)} .switch.on{background:var(--forest)}
+code{background:#fffdf8;border-color:var(--line2);color:var(--cognac)}
+/* progress */
+.bar{background:rgba(20,35,63,.08);height:5px}
+.bar i{background:linear-gradient(90deg,#8a6326,#c9a25a);box-shadow:none}
+.bar.over i{background:linear-gradient(90deg,#7c231d,#b9473e)}
+.steps i{background:rgba(20,35,63,.12)} .steps i.on{background:var(--ink);box-shadow:none}
+.pill{background:transparent;border:1px solid rgba(176,132,58,.45);color:var(--gold-ink);font-weight:600;letter-spacing:.04em}
+.pill.warn{border-color:rgba(168,50,43,.45);color:var(--red);background:transparent}
+.ring .trk{stroke:rgba(20,35,63,.08)}
+.ring .val{filter:none}
+.ring .mid b{font-family:var(--serif);font-size:40px;font-weight:600}
+.ring .mid b small{font-size:20px}
+.ring .mid span{color:var(--muted);letter-spacing:.16em}
+.hs .ic{background:transparent;border:1px solid rgba(176,132,58,.45);color:var(--gold-ink);border-radius:50%}
+.hs b{font-family:var(--serif);font-size:24px;font-weight:600}
+.stat b{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--ink)}
+.stat svg{color:var(--gold-ink)}
+/* tasks */
+.task .title{font-weight:600}
+.task .time{color:var(--gold-ink);letter-spacing:.06em}
+.task.done .title{color:var(--faint);text-decoration-color:rgba(176,132,58,.8)}
+.xp{background:transparent;border:1px solid rgba(176,132,58,.4);color:var(--gold-ink)}
+.check{border:1.5px solid rgba(20,35,63,.28);background:#fffdf8}
+.check svg{stroke:#f6efe0}
+.task.done .check{background:var(--ink);box-shadow:0 0 0 4px rgba(20,35,63,.08)}
+/* avatar & profile */
+.avatar{background:var(--ink);color:#f3e7cc;font-family:var(--serif);font-weight:600;font-size:22px;box-shadow:0 0 0 2px var(--bg),0 0 0 3px rgba(176,132,58,.7)}
+.profile .avatar{font-size:34px}
+.badge{background:transparent;border:1px solid rgba(176,132,58,.45)}
+/* nav: ivory bar on phones */
+nav{background:rgba(251,247,238,.88);border:1px solid var(--line2);box-shadow:0 18px 40px rgba(20,35,63,.14)}
+nav .ind{background:var(--ink);border:0}
+nav button{color:var(--faint);font-size:10px!important;letter-spacing:.02em}
+nav button.on{color:#f3e7cc}
+.sugg-chip{font-size:13px!important}.opt{font-size:15px}
+.toast{background:var(--ink);color:#f6efe0;border:0}
+.footer-logo{color:var(--muted)}
+.donut text{fill:var(--ink)}
+.donut text:first-of-type{font-family:var(--serif)!important;font-weight:600}
+.lg i{border-radius:50%}
+/* desktop: navy club sidebar */
+@media (min-width:1024px){
+  nav{background:#14233f;border:0;box-shadow:none}
+  .nav-brand{color:#f3e7cc;font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:0;height:56px;padding:0 10px;margin-bottom:12px;box-sizing:border-box}
+  nav .ind{top:92px}
+  nav button{color:rgba(243,231,204,.6);font-size:15px!important}
+  nav button.on{color:#14233f}
+  nav .ind{background:linear-gradient(180deg,#e4c88d,#c39a50)}
+  h1{font-size:58px}
+  .toast{left:calc(50% + 126px)}
+}
+
+/* ===== landing: Riviera dusk ===== */
+body.landing-mode{--ink:#f6efe0;--muted:rgba(246,239,224,.7);--faint:rgba(246,239,224,.45);--line:rgba(246,239,224,.14);--line2:rgba(246,239,224,.2);
+  --gold:#d9b06a;--gold-ink:#e6c486;background:#0e182e;color:var(--ink)}
+.brand{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:0}
+.eyebrow-pill{border-radius:2px;letter-spacing:.2em;text-transform:uppercase;font-size:11px;background:rgba(14,24,46,.35)}
+.display{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:clamp(78px,17vw,160px);line-height:.9;
+  background:linear-gradient(180deg,#fbf5e6 0%,#eadfc6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.display .gold,.landing .gold{font-style:italic;background:linear-gradient(100deg,#f2d9a0,#c7963f 50%,#efd393 75%,#a87a30);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+.slogan2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(28px,4vw,38px);letter-spacing:0}
+.lede{font-size:clamp(16px,1.5vw,18px)}
+.stats-row b{font-family:var(--serif);font-size:34px;font-weight:600}
+.stats-row span{letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.kicker{letter-spacing:.26em;font-size:11px}
+.section-title{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;font-size:clamp(38px,5.5vw,64px)}
+.section-title .muted{font-style:italic}
+.glass{background:rgba(12,22,42,.5);border:1px solid rgba(246,239,224,.16);border-radius:6px;box-shadow:0 30px 70px rgba(5,10,22,.45)}
+.feat{border-radius:6px}
+.feat-ico{border-radius:50%;background:transparent;border:1px solid rgba(217,176,106,.5);color:#e6c486}
+.feat h3,.step h3{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:0;color:#f6efe0}
+.step .num{font-family:var(--serif);font-size:22px;font-style:italic;color:#e6c486}
+.cta-band{border-radius:6px}
+.cta-band h2{font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
+.cta{background:#f6efe0;color:#14233f;border-radius:3px;box-shadow:none;letter-spacing:.16em}
+.foot{letter-spacing:.06em}
+/* ivory sign-in card on the painting */
+.landing .auth-card{--ink:#14233f;--muted:rgba(20,35,63,.66);--faint:rgba(20,35,63,.45);--line:rgba(20,35,63,.12);--line2:rgba(20,35,63,.18);--gold:#b0843a;--gold-ink:#8a6326;
+  background:#f6efe0;color:var(--ink);border:1px solid rgba(246,239,224,.6);border-radius:6px;box-shadow:0 40px 90px rgba(5,10,22,.55);backdrop-filter:none;-webkit-backdrop-filter:none}
+.landing .auth-card h2{font-size:32px}
+.landing .auth-card input{background:#fffdf8;border-color:rgba(20,35,63,.18);color:#14233f}
+.landing .auth-card input::placeholder{color:rgba(20,35,63,.35)}
+.landing .auth-card .cta{background:#14233f;color:#f6efe0}
+.landing .auth-card .glass-btn{background:transparent;color:#14233f;border:1px solid #14233f;border-radius:3px;text-transform:uppercase;letter-spacing:.14em;font-size:13px}
+.landing .auth-card button.google{border:1px solid rgba(20,35,63,.18);border-radius:3px}
+.landing .auth-card .or::before,.landing .auth-card .or::after{background:rgba(20,35,63,.14)}
+.landing .seg{background:rgba(20,35,63,.06)}
+.landing .seg button{color:rgba(20,35,63,.6)} .landing .seg button.on{background:#fffdf8;color:#14233f}
+.landing .pwrules li.ok{color:var(--forest)}
 </style>
 </head>
 <body>
@@ -1017,7 +1164,7 @@ function initials(){ const n=(S.profile.name||'').trim(); return n?n[0].toUpperC
 function pageHead(eyebrow,title){ return `<div class="page-head"><div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1></div><button class="avatar" data-tab-go="me" aria-label="Profile">${esc(initials())}</button></div>`; }
 function ringSvg(pct, done, total){
   const R=50, C=2*Math.PI*R, off=C*(1-pct); setTimeout(()=>{ ringPrev=off; },0);
-  return `<div class="ring"><svg viewBox="0 0 118 118" width="118" height="118"><defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2b0"/><stop offset="1" stop-color="#c99d4f"/></linearGradient></defs>
+  return `<div class="ring"><svg viewBox="0 0 118 118" width="118" height="118"><defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4b06a"/><stop offset="1" stop-color="#8a6326"/></linearGradient></defs>
     <circle class="trk" cx="59" cy="59" r="${R}" fill="none" stroke-width="9"/><circle class="val" cx="59" cy="59" r="${R}" fill="none" stroke-width="9" stroke-dasharray="${C}" stroke-dashoffset="${ringPrev==null?C:ringPrev}" data-off="${off}"/></svg>
     <div class="mid"><div><b><span class="count" data-to="${Math.round(pct*100)}">${Math.round(pct*100)}</span><small>%</small></b><span>${done} of ${total}</span></div></div></div>`;
 }
@@ -1029,7 +1176,7 @@ function countUp(){
 }
 function confetti(n=70){
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cols=['#f6e2b0','#e2c27e','#c99d4f','#ffffff','#b79ae0','#6fc4c1'];
+  const cols=['#14233f','#b0843a','#f6efe0','#a8322b','#24407a','#3d5b3e'];
   for(let i=0;i<n;i++){ const c=document.createElement('i'); c.className='confetti';
     c.style.left=(Math.random()*100)+'vw'; c.style.background=cols[i%cols.length];
     c.style.setProperty('--x',(Math.random()*160-80)+'px'); c.style.setProperty('--r',(Math.random()*900-450)+'deg'); c.style.setProperty('--dur',(1.4+Math.random()*1.2)+'s');
@@ -1447,26 +1594,43 @@ function authMsg(e){
 
 /* ============ shader background (WebGL) ============ */
 const Shader=(()=>{
-  let cv=null, gl=null, prog=null, raf=0, t0=0, uR, uT, uM, mx=0, my=0, tmx=0, tmy=0, running=false, low=false, last=0;
+  let cv=null, gl=null, prog=null, raf=0, t0=0, uR, uT, uM, uMd, mx=0, my=0, tmx=0, tmy=0, running=false, low=false, last=0;
   const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
-  const FS=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;
+  const FS=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;uniform float md;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
-float fbm(vec2 p){float v=0.,a=.5;mat2 R=mat2(.8,.6,-.6,.8);for(int i=0;i<5;i++){v+=a*n(p);p=R*p*2.02;a*=.5;}return v;}
+float fbm(vec2 p){float v=0.,a=.5;mat2 R=mat2(.8,.6,-.6,.8);for(int i=0;i<4;i++){v+=a*n(p);p=R*p*2.03;a*=.5;}return v;}
+vec2 rot(vec2 p,float a){float c=cos(a),s=sin(a);return vec2(c*p.x-s*p.y,s*p.x+c*p.y);}
+float stroke(vec2 p,float T){float a=(fbm(p*.35+T*.02)-.5)*2.4+.35;vec2 q=rot(p,a)*vec2(1.,5.2);return fbm(q+vec2(0.,T*.05));}
 void main(){
-  vec2 p=(gl_FragCoord.xy-.5*r)/min(r.x,r.y);p+=m*.06;float T=t*.045;
-  vec2 q=vec2(fbm(p*1.3+T),fbm(p*1.3-T+5.2));
-  vec2 w=vec2(fbm(p*1.5+q*2.+vec2(1.7,9.2)+T*1.3),fbm(p*1.5+q*2.+vec2(8.3,2.8)-T));
-  float f=fbm(p*1.15+w*2.1);
-  vec3 c0=vec3(.024,.031,.058),c1=vec3(.094,.125,.235),c2=vec3(.19,.22,.42),gold=vec3(.86,.72,.44);
-  vec3 col=mix(c0,c1,smoothstep(.15,.75,f));
-  col=mix(col,c2,smoothstep(.5,.95,length(q))*.55);
-  col+=gold*pow(smoothstep(.42,.92,f*w.x+.15),2.6)*.42;
-  col+=gold*.10*smoothstep(1.1,.0,length(p-vec2(.75,-.55)))*(.6+.4*sin(T*6.));
-  col+=vec3(.35,.3,.6)*pow(smoothstep(.6,1.,w.y),4.)*.18;
-  float v=smoothstep(1.35,.2,length(p*vec2(.85,1.05)));col*=mix(.45,1.,v);
-  col+=(h(gl_FragCoord.xy+fract(t*.37))-.5)*.04;
+  vec2 p=(gl_FragCoord.xy-.5*r)/min(r.x,r.y);p+=m*.04;float T=t;
+  vec2 sp=p*vec2(3.2,3.2);float e=.012;
+  float s0=stroke(sp,T),sx=stroke(sp+vec2(e,0.),T),sy=stroke(sp+vec2(0.,e),T);
+  vec3 nr=normalize(vec3(-(sx-s0)/e*.09,-(sy-s0)/e*.09,1.));
+  float li=clamp(dot(nr,normalize(vec3(-.45,.55,.75))),0.,1.);
+  float sq=mix(s0,floor(s0*9.)/9.,.5);s0=sq;
+  float big=fbm(p*1.1+T*.01);float sky=smoothstep(-.35,.55,p.y+big*.25);
+  vec3 col;
+  if(md<.5){
+    vec3 navy=vec3(.055,.094,.18),ultra=vec3(.13,.23,.43),rose=vec3(.62,.42,.45),gold=vec3(.93,.70,.36),blue=vec3(.20,.33,.58);
+    col=mix(navy,ultra,smoothstep(.25,.78,s0));
+    col=mix(col,blue,smoothstep(.55,.9,s0)*sky*.5);
+    col=mix(col,rose,sky*smoothstep(.45,.85,big)*.35);
+    vec2 g=p*vec2(46.,58.);vec2 id=floor(g);vec2 f=fract(g)-.5;float rn=h(id);
+    float dd=length(f-(vec2(h(id+3.1),h(id+7.7))-.5)*.6);
+    float lights=step(.955,rn)*(1.-smoothstep(-.1,.25,p.y+big*.2))*smoothstep(.16,.0,dd)*(.55+.45*sin(T*1.3+rn*60.));
+    col+=gold*lights*1.6;
+    col+=gold*.07*(1.-sky)*smoothstep(.4,.9,s0);
+  } else {
+    vec3 iv=vec3(.953,.925,.863),cr=vec3(.91,.865,.77),sand=vec3(.86,.80,.69),sea=vec3(.80,.84,.88);
+    col=mix(cr,iv,smoothstep(.25,.8,s0));
+    col=mix(col,sand,smoothstep(.72,.95,s0)*.35);
+    col=mix(col,sea,sky*.10);
+  }
+  col*=mix(.80,1.12,li);col+=pow(li,14.)*(md<.5?.10:.06);
+  float v=smoothstep(1.4,.25,length(p*vec2(.85,1.05)));col*=mix(md<.5?.55:.92,1.,v);
+  col+=(h(gl_FragCoord.xy+fract(t*.37))-.5)*.03;
   gl_FragColor=vec4(col,1.);}`;
   function init(){
     cv=document.getElementById('bg'); if(!cv) return false;
@@ -1476,7 +1640,7 @@ void main(){
     gl.useProgram(prog);
     const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
     const loc=gl.getAttribLocation(prog,'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-    uR=gl.getUniformLocation(prog,'r'); uT=gl.getUniformLocation(prog,'t'); uM=gl.getUniformLocation(prog,'m');
+    uR=gl.getUniformLocation(prog,'r'); uT=gl.getUniformLocation(prog,'t'); uM=gl.getUniformLocation(prog,'m'); uMd=gl.getUniformLocation(prog,'md');
     addEventListener('pointermove',e=>{ tmx=e.clientX/innerWidth-.5; tmy=.5-e.clientY/innerHeight; },{passive:true});
     addEventListener('resize',size); t0=performance.now()-20000*Math.random(); return true;
   }
@@ -1484,7 +1648,7 @@ void main(){
   function frame(now){
     if(low && now-last<50){ raf=requestAnimationFrame(frame); return; } last=now;
     mx+=(tmx-mx)*.04; my+=(tmy-my)*.04;
-    gl.uniform2f(uR,cv.width,cv.height); gl.uniform1f(uT,(now-t0)/1000); gl.uniform2f(uM,mx,my);
+    gl.uniform2f(uR,cv.width,cv.height); gl.uniform1f(uT,(now-t0)/1000); gl.uniform2f(uM,mx,my); gl.uniform1f(uMd,low?1:0);
     gl.drawArrays(gl.TRIANGLES,0,3);
     if(running && !reduce) raf=requestAnimationFrame(frame);
   }
